@@ -10,12 +10,11 @@ layout(set = 2, binding = 4) uniform float seed;
 layout(set = 2, binding = 5) uniform float pixels;
 layout(set = 2, binding = 6) uniform vec4 background_color;
 layout(set = 2, binding = 7) uniform vec2 uv_correct;
-
-bool should_tile = false;
-bool reduce_background = false;
+layout(set = 2, binding = 8) uniform int should_tile;
+layout(set = 2, binding = 9) uniform int reduce_background;
 
 float rand(vec2 coord, float tilesize) {
-    if (should_tile) {
+    if (should_tile == 1) {
         coord = mod(coord / uv_correct, tilesize);
     }
 
@@ -53,7 +52,7 @@ bool dither(vec2 uv1, vec2 uv2) {
 }
 
 float circleNoise(vec2 uv, float tilesize) {
-    if (should_tile) {
+    if (should_tile == 1) {
         uv = mod(uv, tilesize / uv_correct);
     }
 
@@ -88,7 +87,6 @@ float cloud_alpha(vec2 uv, float tilesize) {
 
 
 void main() {
-    
 	vec2 uv = floor((UV) * pixels) / pixels;
 	
 	// distance from center
@@ -114,13 +112,13 @@ void main() {
 	// slightly offset alpha values to create thin bands around the nebulae
 	float a = step(n2, 0.1 + d);
 	float a2 = step(n2, 0.115 + d);
-	if (should_tile) {
+	if (should_tile == 1) {
 		a = step(n2, 0.3);
 		a2 = step(n2, 0.315);
 	}
 
 	// choose colors
-	if (reduce_background) {
+	if (reduce_background == 1) {
 		n_dust_lerp = pow(n_dust_lerp, 1.2) * 0.7;
 	}
 	float col_value = 0.0;

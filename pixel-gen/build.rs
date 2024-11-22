@@ -1,6 +1,24 @@
 fn main() {
     println!("{:?}", std::env::current_dir().unwrap());
 
-    std::fs::copy("assets/nebulae.glsl", "assets/nebulae.frag").unwrap();
-    std::fs::copy("assets/nebulae.vert.glsl", "assets/nebulae.vert").unwrap();
+    std::fs::copy(
+        "assets/shaders/nebulae.glsl",
+        "assets/shaders/output/nebulae.frag",
+    )
+    .unwrap();
+    std::fs::copy(
+        "assets/shaders/nebulae.vert.glsl",
+        "assets/shaders/output/nebulae.vert",
+    )
+    .unwrap();
+    std::fs::copy(
+        "assets/shaders/star_stuff.glsl",
+        "assets/shaders/output/star_stuff.frag",
+    )
+    .unwrap();
+    std::fs::copy(
+        "assets/shaders/star_stuff.vert.glsl",
+        "assets/shaders/output/star_stuff.vert",
+    )
+    .unwrap();
 }

@@ -1,0 +1,7 @@
+[package]
+name = "pixel-gen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = { version = "0.14.2", default-features = false, features = ["bevy_asset", "bevy_render", "bevy_sprite", "bevy_scene", "x11", "bevy_text", "bevy_ui", "bevy_pbr", "png", "shader_format_glsl", "tonemapping_luts"] }

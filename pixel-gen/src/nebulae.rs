@@ -1,26 +1,14 @@
 use bevy::{
     prelude::*,
     reflect::TypePath,
-    render::{
-        render_resource::{AsBindGroup, Sampler, ShaderRef},
-        texture::DefaultImageSampler,
-    },
+    render::render_resource::{AsBindGroup, ShaderRef},
     sprite::{Material2d, MaterialMesh2dBundle},
-    utils::RandomState,
 };
 
-use crate::BGColorIndex;
+use crate::menu::Options;
 
 #[derive(Event)]
 pub struct SpawnNebulaeEvent;
-
-const BACKGROUND_COLORS: [LinearRgba; 5] = [
-    LinearRgba::BLUE,
-    LinearRgba::BLACK,
-    LinearRgba::GREEN,
-    LinearRgba::WHITE,
-    LinearRgba::RED,
-];
 
 #[derive(Component)]
 pub struct Nebulae;
@@ -34,9 +22,9 @@ pub fn spawn_nebulae(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<NebulaeMaterial>>,
-    mut color_index: ResMut<BGColorIndex>,
+    options: Res<Options>,
     current_nebulae: Query<Entity, With<Nebulae>>,
-    asset_server: Res<AssetServer>,
+    mut asset_server: ResMut<Assets<Image>>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -51,35 +39,11 @@ pub fn spawn_nebulae(
         Nebulae,
         MaterialMesh2dBundle {
             mesh: meshes.add(Rectangle::default()).into(),
-            //transform: Transform::default().with_scale(Vec3::splat(TEXTURE_SIZE)),
-            material: materials.add(NebulaeMaterial {
-                size: 5.0,
-                octaves: 3,
-                seed: rand::random::<f32>() % 10.,
-                pixels: 2000.0,
-                background_color: Vec4::new(0.0901961, 0.0901961, 0.0666667, 1.),
-                uv_correct: Vec2::new(1.0, 1.0),
-                color_texture: Some(asset_server.load("background.png")),
-                should_tile: 0,
-                reduce_background: 0,
-            }),
+            material: materials.add(NebulaeMaterial::new(&options, &mut asset_server)),
             ..default()
         },
     ));
-
-    color_index.0 = (color_index.0 + 1) % 5;
 }
-
-const COLORSCHEME: [Vec4; 8] = [
-    Vec4::new(0.12549, 0.133333, 0.0823529, 1.),
-    Vec4::new(0.227451, 0.156863, 0.00784314, 1.),
-    Vec4::new(0.588235, 0.235294, 0.235294, 1.),
-    Vec4::new(0.792157, 0.352941, 0.180392, 1.),
-    Vec4::new(1., 0.470588, 0.192157, 1.),
-    Vec4::new(0.952941, 0.6, 0.286275, 1.),
-    Vec4::new(0.921569, 0.760784, 0.458824, 1.),
-    Vec4::new(0.87451, 0.843137, 0.521569, 1.),
-];
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct NebulaeMaterial {
@@ -103,6 +67,22 @@ pub struct NebulaeMaterial {
     #[texture(1)]
     #[sampler(2)]
     color_texture: Option<Handle<Image>>,
+}
+
+impl NebulaeMaterial {
+    fn new(options: &Options, asset_server: &mut Assets<Image>) -> Self {
+        NebulaeMaterial {
+            size: 5.0,
+            octaves: 3,
+            seed: rand::random::<f32>() % 10.,
+            pixels: options.pixels,
+            background_color: utils::colors::hex_to_vec4(super::BACKGROUND_COLOR),
+            uv_correct: Vec2::new(1.0, 1.0),
+            color_texture: Some(asset_server.add(options.colorscheme.gradient_image())),
+            should_tile: options.tile as i32,
+            reduce_background: options.darken as i32,
+        }
+    }
 }
 
 impl Material2d for NebulaeMaterial {

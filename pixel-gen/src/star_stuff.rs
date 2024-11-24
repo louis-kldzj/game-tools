@@ -5,7 +5,7 @@ use bevy::{
     sprite::{Material2d, MaterialMesh2dBundle},
 };
 
-use crate::TEXTURE_SIZE;
+use crate::menu::Options;
 
 #[derive(Event)]
 pub struct SpawnStarStuffEvent;
@@ -22,8 +22,9 @@ pub fn spawn_star_stuff(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StarStuffMaterial>>,
+    options: Res<Options>,
     current_nebulae: Query<Entity, With<StarStuff>>,
-    asset_server: Res<AssetServer>,
+    mut asset_server: ResMut<Assets<Image>>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -38,17 +39,7 @@ pub fn spawn_star_stuff(
         StarStuff,
         MaterialMesh2dBundle {
             mesh: meshes.add(Rectangle::default()).into(),
-            //transform: Transform::default().with_scale(Vec3::splat(TEXTURE_SIZE)),
-            material: materials.add(StarStuffMaterial {
-                size: 5.0,
-                octaves: 3,
-                seed: rand::random::<f32>() % 10.,
-                pixels: 2000.0,
-                uv_correct: Vec2::new(1.0, 1.0),
-                color_texture: Some(asset_server.load("background.png")),
-                should_tile: 0,
-                reduce_background: 0,
-            }),
+            material: materials.add(StarStuffMaterial::new(&options, &mut asset_server)),
             ..default()
         },
     ));
@@ -76,8 +67,21 @@ pub struct StarStuffMaterial {
     color_texture: Option<Handle<Image>>,
 }
 
-/// The Material2d trait is very configurable, but comes with sensible defaults for all methods.
-/// You only need to implement functions for features that need non-default behavior. See the Material2d api docs for details!
+impl StarStuffMaterial {
+    fn new(options: &Options, asset_server: &mut Assets<Image>) -> Self {
+        StarStuffMaterial {
+            size: 5.0,
+            octaves: 3,
+            seed: rand::random::<f32>() % 10.,
+            pixels: options.pixels,
+            uv_correct: Vec2::new(1.0, 1.0),
+            color_texture: Some(asset_server.add(options.colorscheme.gradient_image())),
+            should_tile: options.tile as i32,
+            reduce_background: options.darken as i32,
+        }
+    }
+}
+
 impl Material2d for StarStuffMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/output/star_stuff.frag".into()

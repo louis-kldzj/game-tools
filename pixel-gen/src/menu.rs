@@ -22,7 +22,7 @@ pub const DEFAULT_OPTIONS: Options = Options {
     dust: true,
     nebulae: true,
     planets: false,
-    tile: false,
-    darken: false,
+    tile: true,
+    darken: true,
     transparency: false,
 };

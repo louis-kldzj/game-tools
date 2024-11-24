@@ -75,7 +75,7 @@ impl StarStuffMaterial {
             seed: rand::random::<f32>() % 10.,
             pixels: options.pixels,
             uv_correct: Vec2::new(1.0, 1.0),
-            color_texture: Some(asset_server.add(options.colorscheme.gradient_image())),
+            color_texture: Some(asset_server.add(options.colorscheme.gradient_image_with_bg().0)),
             should_tile: options.tile as i32,
             reduce_background: options.darken as i32,
         }

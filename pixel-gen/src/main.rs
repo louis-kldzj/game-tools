@@ -2,6 +2,7 @@ use bevy::{
     prelude::*,
     sprite::{Material2dPlugin, MaterialMesh2dBundle},
 };
+use colorscheme::ColorScheme;
 use menu::DEFAULT_OPTIONS;
 use nebulae::SpawnNebulaeEvent;
 use star_stuff::SpawnStarStuffEvent;
@@ -66,7 +67,9 @@ fn spawn_bg(
     commands.spawn(MaterialMesh2dBundle {
         mesh: meshes.add(Rectangle::new(size.x, size.y)).into(),
         transform: Transform::from_xyz(0., 0.0, -1.0),
-        material: materials.add(ColorMaterial::from_color(background_color())),
+        material: materials.add(ColorMaterial::from_color(utils::colors::hex_to_color(
+            ColorScheme::Borkfest.colors().first().unwrap(),
+        ))),
         ..default()
     });
 }

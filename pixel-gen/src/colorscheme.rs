@@ -1,4 +1,4 @@
-use bevy::prelude::Image;
+use bevy::{color::Color, prelude::Image};
 
 pub enum ColorScheme {
     Borkfest,
@@ -14,8 +14,12 @@ impl ColorScheme {
         }
     }
 
-    pub fn gradient_image(&self) -> Image {
-        utils::colors::color_gradiant(&self.colors(), 100)
+    pub fn gradient_image_with_bg(&self) -> (Image, Color) {
+        let colors = self.colors();
+        (
+            utils::colors::color_gradiant(&colors[1..], 100),
+            utils::colors::hex_to_color(colors[1]),
+        )
     }
 }
 

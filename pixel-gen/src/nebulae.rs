@@ -71,14 +71,16 @@ pub struct NebulaeMaterial {
 
 impl NebulaeMaterial {
     fn new(options: &Options, asset_server: &mut Assets<Image>) -> Self {
+        let (image, bg) = options.colorscheme.gradient_image_with_bg();
+
         NebulaeMaterial {
             size: 5.0,
             octaves: 3,
             seed: rand::random::<f32>() % 10.,
             pixels: options.pixels,
-            background_color: utils::colors::hex_to_vec4(super::BACKGROUND_COLOR),
+            background_color: bg.to_srgba().to_vec4(),
             uv_correct: Vec2::new(1.0, 1.0),
-            color_texture: Some(asset_server.add(options.colorscheme.gradient_image())),
+            color_texture: Some(asset_server.add(image)),
             should_tile: options.tile as i32,
             reduce_background: options.darken as i32,
         }

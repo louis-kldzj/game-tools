@@ -7,29 +7,53 @@ use bevy::{
 
 use crate::TEXTURE_SIZE;
 
+#[derive(Event)]
+pub struct SpawnStarStuffEvent;
+
+#[derive(Component)]
+pub struct StarStuff;
+
+pub fn setup(mut trigger: EventWriter<SpawnStarStuffEvent>) {
+    trigger.send(SpawnStarStuffEvent);
+}
+
 pub fn spawn_star_stuff(
+    mut trigger: EventReader<SpawnStarStuffEvent>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StarStuffMaterial>>,
+    current_nebulae: Query<Entity, With<StarStuff>>,
     asset_server: Res<AssetServer>,
 ) {
-    // quad
-    commands.spawn(MaterialMesh2dBundle {
-        mesh: meshes.add(Rectangle::default()).into(),
-        transform: Transform::default().with_scale(Vec3::splat(TEXTURE_SIZE)),
-        material: materials.add(StarStuffMaterial {
-            size: 5.0,
-            octaves: 3,
-            seed: 4.507,
-            pixels: 500.0,
-            uv_correct: Vec2::new(1.0, 1.0),
-            color_texture: Some(asset_server.load("background.png")),
-            should_tile: 0,
-            reduce_background: 0,
-        }),
-        ..default()
-    });
+    let Some(_) = trigger.read().next() else {
+        return;
+    };
+    trigger.clear();
+
+    if let Ok(entity) = current_nebulae.get_single() {
+        commands.entity(entity).despawn_recursive();
+    }
+
+    commands.spawn((
+        StarStuff,
+        MaterialMesh2dBundle {
+            mesh: meshes.add(Rectangle::default()).into(),
+            //transform: Transform::default().with_scale(Vec3::splat(TEXTURE_SIZE)),
+            material: materials.add(StarStuffMaterial {
+                size: 5.0,
+                octaves: 3,
+                seed: rand::random::<f32>() % 10.,
+                pixels: 2000.0,
+                uv_correct: Vec2::new(1.0, 1.0),
+                color_texture: Some(asset_server.load("background.png")),
+                should_tile: 0,
+                reduce_background: 0,
+            }),
+            ..default()
+        },
+    ));
 }
+
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct StarStuffMaterial {
     #[uniform(0)]

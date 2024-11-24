@@ -13,6 +13,9 @@ layout(set = 2, binding = 7) uniform vec2 uv_correct;
 layout(set = 2, binding = 8) uniform int should_tile;
 layout(set = 2, binding = 9) uniform int reduce_background;
 
+layout(set = 2, binding = 1) uniform texture2D texture_;
+layout(set = 2, binding = 2) uniform sampler sampler_;
+
 float rand(vec2 coord, float tilesize) {
     if (should_tile == 1) {
         coord = mod(coord / uv_correct, tilesize);
@@ -129,7 +132,7 @@ void main() {
 	}
 	
 	// apply colors
-	vec3 col = vec3(123.0,253.0,213.0);//texture(colorscheme, vec2(col_value, 0.0)).rgb;
+	vec3 col = texture(sampler2D(texture_, sampler_), vec2(col_value, 0.0)).rgb;
 	if (col_value < 0.1) {
 		col = background_color.rgb;
 	}

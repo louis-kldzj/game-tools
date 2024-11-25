@@ -37,7 +37,7 @@ fn main() {
         .insert_resource(BGColorIndex(0))
         .insert_resource(ScreenSize(Vec2::ZERO))
         .insert_resource(DEFAULT_OPTIONS)
-        .add_systems(Startup, (spawn_camera, spawn_bg))
+        .add_systems(Startup, (spawn_camera, spawn_bg, menu::spawn_debug_text))
         .add_systems(PostStartup, (nebulae::setup, star_stuff::setup))
         .add_systems(
             Update,
@@ -45,6 +45,7 @@ fn main() {
                 nebulae::spawn_nebulae,
                 star_stuff::spawn_star_stuff,
                 controls,
+                menu::change_options,
             ),
         )
         .run();

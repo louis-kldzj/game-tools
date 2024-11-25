@@ -35,6 +35,10 @@ pub fn spawn_nebulae(
         commands.entity(entity).despawn_recursive();
     }
 
+    if !options.nebulae {
+        return;
+    }
+
     commands.spawn((
         Nebulae,
         MaterialMesh2dBundle {

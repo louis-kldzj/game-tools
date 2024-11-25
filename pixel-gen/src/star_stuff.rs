@@ -35,6 +35,10 @@ pub fn spawn_star_stuff(
         commands.entity(entity).despawn_recursive();
     }
 
+    if !options.dust {
+        return;
+    }
+
     commands.spawn((
         StarStuff,
         MaterialMesh2dBundle {

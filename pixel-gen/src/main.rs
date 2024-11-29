@@ -29,6 +29,10 @@ impl ScreenSize {
     pub fn left(&self) -> f32 {
         self.0.y
     }
+
+    pub fn width(&self) -> f32 {
+        self.0.x - self.left()
+    }
 }
 
 fn main() {
@@ -50,6 +54,7 @@ fn main() {
         .add_event::<planets::SpawnPlanetsEvent>()
         .add_event::<SpawnBackgroundEvent>()
         .add_event::<ui::SpawnMenuEvent>()
+        .add_event::<RefreshAllEvent>()
         .insert_resource(ScreenSize(DEFAULT_SCREEN_SIZE))
         .insert_resource(DEFAULT_OPTIONS)
         .add_systems(
@@ -129,8 +134,12 @@ fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
+#[derive(Event)]
+struct RefreshAllEvent;
+
 fn controls(
     kb_input: Res<ButtonInput<KeyCode>>,
+    mut refresh_event: EventReader<RefreshAllEvent>,
     mut spawn_nebulae: EventWriter<SpawnNebulaeEvent>,
     mut spawn_star_stuff: EventWriter<SpawnStarStuffEvent>,
     mut spawn_planets: EventWriter<SpawnPlanetsEvent>,
@@ -138,7 +147,10 @@ fn controls(
     mut spawn_menu: EventWriter<SpawnMenuEvent>,
 ) {
     if !kb_input.just_released(KeyCode::Space) {
-        return;
+        let Some(_) = refresh_event.read().next() else {
+            return;
+        };
+        refresh_event.clear();
     }
 
     spawn_nebulae.send(SpawnNebulaeEvent);

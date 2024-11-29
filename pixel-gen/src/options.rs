@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::colorscheme::ColorScheme;
+use crate::{colorscheme::ColorScheme, RefreshAllEvent};
 
 #[derive(Resource)]
 pub struct Options {
@@ -32,6 +32,7 @@ pub fn change_options(
     mut text: Query<&mut Text>,
     kb_input: Res<ButtonInput<KeyCode>>,
     asset_server: Res<AssetServer>,
+    mut refresh_all: EventWriter<RefreshAllEvent>,
 ) {
     if kb_input.just_pressed(KeyCode::KeyC) {
         //TODO: set colorscheme
@@ -75,6 +76,8 @@ pub fn change_options(
             color: Color::WHITE,
         },
     )];
+
+    refresh_all.send(RefreshAllEvent);
 }
 
 pub fn spawn_debug_text(mut commands: Commands, asset_server: Res<AssetServer>) {

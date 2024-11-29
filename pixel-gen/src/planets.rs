@@ -48,7 +48,9 @@ pub fn lerp_scale(time: Res<Time>, mut query: Query<(&mut Transform, &Planets)>)
 }
 
 pub fn setup(mut event_writer: EventWriter<SpawnPlanetsEvent>) {
-    event_writer.send(SpawnPlanetsEvent);
+    for _ in 0..rand::thread_rng().gen_range(1..5) {
+        event_writer.send(SpawnPlanetsEvent);
+    }
 }
 
 pub fn spawn_planets(
@@ -61,28 +63,30 @@ pub fn spawn_planets(
     mut images: ResMut<Assets<Image>>,
     screen_size: Res<ScreenSize>,
 ) {
-    let Some(_) = trigger.read().next() else {
+    if trigger.is_empty() {
         return;
-    };
-    trigger.clear();
+    }
 
-    if let Ok(entity) = current_planet.get_single() {
+    for entity in current_planet.iter() {
         commands.entity(entity).despawn_recursive();
     }
 
     if !options.planets {
         return;
     }
-
-    commands.spawn((
-        Planets { scale: 1. },
-        MaterialMesh2dBundle {
-            mesh: meshes.add(Circle::new(50.)).into(),
-            material: materials.add(PlanetsMaterial::new(&options, &mut images, &screen_size)),
-            transform: Transform::from_translation(Vec3::ZERO.with_z(1.0)),
-            ..default()
-        },
-    ));
+    for _ in trigger.read() {
+        commands.spawn((
+            Planets { scale: 1. },
+            MaterialMesh2dBundle {
+                mesh: meshes
+                    .add(Circle::new(rand::thread_rng().gen_range(40.0..70.0)))
+                    .into(),
+                material: materials.add(PlanetsMaterial::new(&options, &mut images, &screen_size)),
+                transform: Transform::from_translation(Vec3::ZERO.with_z(1.0)),
+                ..default()
+            },
+        ));
+    }
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -113,7 +117,7 @@ impl PlanetsMaterial {
         let x = rng.gen_range((x_offset - half_square)..(x_offset + half_square));
         let y = rng.gen_range(-half_square..half_square);
         PlanetsMaterial {
-            size: 1.,
+            size: 5.365,
             octaves: 3,
             seed: rng.gen_range(1.0..10.0),
             pixels: 100.0,

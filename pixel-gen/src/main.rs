@@ -6,6 +6,7 @@ use bevy::{
 use nebulae::SpawnNebulaeEvent;
 use options::{Options, DEFAULT_OPTIONS};
 use planets::SpawnPlanetsEvent;
+use rand::Rng;
 use star_stuff::SpawnStarStuffEvent;
 use ui::SpawnMenuEvent;
 
@@ -155,7 +156,9 @@ fn controls(
 
     spawn_nebulae.send(SpawnNebulaeEvent);
     spawn_star_stuff.send(SpawnStarStuffEvent);
-    spawn_planets.send(SpawnPlanetsEvent);
+    for _ in 0..rand::thread_rng().gen_range(1..5) {
+        spawn_planets.send(SpawnPlanetsEvent);
+    }
     spawn_bg.send(SpawnBackgroundEvent);
     spawn_menu.send(SpawnMenuEvent);
 }

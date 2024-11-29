@@ -16,7 +16,7 @@ pub struct Options {
 }
 
 pub const DEFAULT_OPTIONS: Options = Options {
-    pixels: 200.0,
+    pixels: 1000.0,
     colorscheme: ColorScheme::FunkyFutures,
     stars: true,
     dust: true,

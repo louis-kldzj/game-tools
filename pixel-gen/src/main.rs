@@ -1,25 +1,33 @@
 use bevy::{
     prelude::*,
-    sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle},
+    sprite::{Material2dPlugin, MaterialMesh2dBundle},
     window::WindowMode,
 };
 use nebulae::SpawnNebulaeEvent;
 use options::{Options, DEFAULT_OPTIONS};
 use planets::SpawnPlanetsEvent;
 use star_stuff::SpawnStarStuffEvent;
+use ui::SpawnMenuEvent;
 
 mod colorscheme;
 mod nebulae;
 mod options;
 mod planets;
 mod star_stuff;
+mod ui;
 
 #[derive(Resource)]
 struct ScreenSize(pub Vec2);
 
+const DEFAULT_SCREEN_SIZE: Vec2 = Vec2 { x: 3840., y: 2160. };
+
 impl ScreenSize {
     pub fn x_offset(&self) -> f32 {
         -((self.0.x / 2.) - (self.0.y / 2.))
+    }
+
+    pub fn left(&self) -> f32 {
+        self.0.y
     }
 }
 
@@ -41,9 +49,13 @@ fn main() {
         .add_event::<star_stuff::SpawnStarStuffEvent>()
         .add_event::<planets::SpawnPlanetsEvent>()
         .add_event::<SpawnBackgroundEvent>()
-        .insert_resource(ScreenSize(Vec2::ZERO))
+        .add_event::<ui::SpawnMenuEvent>()
+        .insert_resource(ScreenSize(DEFAULT_SCREEN_SIZE))
         .insert_resource(DEFAULT_OPTIONS)
-        .add_systems(Startup, (spawn_camera, options::spawn_debug_text, setup))
+        .add_systems(
+            Startup,
+            (spawn_camera, options::spawn_debug_text, setup, ui::setup),
+        )
         .add_systems(
             PostStartup,
             (nebulae::setup, star_stuff::setup, planets::setup),
@@ -60,6 +72,7 @@ fn main() {
                 utils::common_systems::exit_on_q,
                 spawn_bg,
                 (planets::update_scale, planets::lerp_scale).chain(),
+                ui::spawn_menu,
             ),
         )
         .run();
@@ -76,18 +89,8 @@ fn update_screen_size(query: Query<&Window>, mut screen_size: ResMut<ScreenSize>
     screen_size.0 = window.size();
 }
 
-fn setup(
-    mut writer: EventWriter<SpawnBackgroundEvent>,
-    mut screen_size: ResMut<ScreenSize>,
-    window: Query<&Window>,
-) {
+fn setup(mut writer: EventWriter<SpawnBackgroundEvent>) {
     writer.send(SpawnBackgroundEvent);
-
-    let Ok(window) = window.get_single() else {
-        return;
-    };
-
-    screen_size.0 = window.size();
 }
 
 fn spawn_bg(
@@ -132,6 +135,7 @@ fn controls(
     mut spawn_star_stuff: EventWriter<SpawnStarStuffEvent>,
     mut spawn_planets: EventWriter<SpawnPlanetsEvent>,
     mut spawn_bg: EventWriter<SpawnBackgroundEvent>,
+    mut spawn_menu: EventWriter<SpawnMenuEvent>,
 ) {
     if !kb_input.just_released(KeyCode::Space) {
         return;
@@ -141,6 +145,7 @@ fn controls(
     spawn_star_stuff.send(SpawnStarStuffEvent);
     spawn_planets.send(SpawnPlanetsEvent);
     spawn_bg.send(SpawnBackgroundEvent);
+    spawn_menu.send(SpawnMenuEvent);
 }
 
 // TODO: Think about this

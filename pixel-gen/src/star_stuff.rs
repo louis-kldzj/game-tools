@@ -5,7 +5,7 @@ use bevy::{
     sprite::{Material2d, MaterialMesh2dBundle},
 };
 
-use crate::{menu::Options, ScreenSize};
+use crate::{options::Options, ScreenSize};
 
 #[derive(Event)]
 pub struct SpawnStarStuffEvent;

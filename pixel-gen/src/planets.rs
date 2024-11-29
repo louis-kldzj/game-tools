@@ -5,7 +5,7 @@ use bevy::{
 };
 use rand::Rng;
 
-use crate::{menu::Options, ScreenSize};
+use crate::{options::Options, ScreenSize};
 
 #[derive(Event)]
 pub struct SpawnPlanetsEvent;

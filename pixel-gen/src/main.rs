@@ -3,14 +3,14 @@ use bevy::{
     sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle},
     window::WindowMode,
 };
-use menu::{Options, DEFAULT_OPTIONS};
 use nebulae::SpawnNebulaeEvent;
+use options::{Options, DEFAULT_OPTIONS};
 use planets::SpawnPlanetsEvent;
 use star_stuff::SpawnStarStuffEvent;
 
 mod colorscheme;
-mod menu;
 mod nebulae;
+mod options;
 mod planets;
 mod star_stuff;
 
@@ -43,7 +43,7 @@ fn main() {
         .add_event::<SpawnBackgroundEvent>()
         .insert_resource(ScreenSize(Vec2::ZERO))
         .insert_resource(DEFAULT_OPTIONS)
-        .add_systems(Startup, (spawn_camera, menu::spawn_debug_text, setup))
+        .add_systems(Startup, (spawn_camera, options::spawn_debug_text, setup))
         .add_systems(
             PostStartup,
             (nebulae::setup, star_stuff::setup, planets::setup),
@@ -56,7 +56,7 @@ fn main() {
                 planets::spawn_planets,
                 star_stuff::spawn_star_stuff,
                 controls,
-                menu::change_options,
+                options::change_options,
                 utils::common_systems::exit_on_q,
                 spawn_bg,
                 (planets::update_scale, planets::lerp_scale).chain(),

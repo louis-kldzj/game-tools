@@ -17,11 +17,11 @@ pub struct Options {
 
 pub const DEFAULT_OPTIONS: Options = Options {
     pixels: 200.0,
-    colorscheme: ColorScheme::Borkfest,
-    stars: false,
+    colorscheme: ColorScheme::FunkyFutures,
+    stars: true,
     dust: true,
     nebulae: true,
-    planets: false,
+    planets: true,
     tile: false,
     darken: false,
     transparency: false,
@@ -48,6 +48,8 @@ pub fn change_options(
         options.nebulae = !options.nebulae;
     } else if kb_input.just_pressed(KeyCode::KeyW) {
         options.darken = !options.darken;
+    } else if kb_input.just_pressed(KeyCode::KeyP) {
+        options.planets = !options.planets;
     } else {
         return;
     }
@@ -57,14 +59,15 @@ pub fn change_options(
 
     text.sections = vec![TextSection::new(
         format!(
-            "TILE<{}> DUST<{}> ALPHA<{}> STARS<{}> NEB<{}> DARK<{}> COLORSCHEME<{:?}>",
+            "TILE<{}> DUST<{}> ALPHA<{}> STARS<{}> NEB<{}> DARK<{}> COLORSCHEME<{:?}> PLANETS<{}>",
             options.tile,
             options.dust,
             options.transparency,
             options.stars,
             options.nebulae,
             options.darken,
-            options.colorscheme
+            options.colorscheme,
+            options.planets
         ),
         TextStyle {
             font: asset_server.load("slkscre.ttf"),

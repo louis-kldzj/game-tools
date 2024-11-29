@@ -5,7 +5,7 @@ use bevy::{
     sprite::{Material2d, MaterialMesh2dBundle},
 };
 
-use crate::menu::Options;
+use crate::{menu::Options, ScreenSize};
 
 #[derive(Event)]
 pub struct SpawnNebulaeEvent;
@@ -25,6 +25,7 @@ pub fn spawn_nebulae(
     options: Res<Options>,
     current_nebulae: Query<Entity, With<Nebulae>>,
     mut asset_server: ResMut<Assets<Image>>,
+    screen_size: Res<ScreenSize>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -43,7 +44,11 @@ pub fn spawn_nebulae(
         Nebulae,
         MaterialMesh2dBundle {
             mesh: meshes.add(Rectangle::default()).into(),
-            material: materials.add(NebulaeMaterial::new(&options, &mut asset_server)),
+            material: materials.add(NebulaeMaterial::new(
+                &options,
+                &mut asset_server,
+                -(screen_size.0.x / 2.),
+            )),
             ..default()
         },
     ));
@@ -67,6 +72,8 @@ pub struct NebulaeMaterial {
     should_tile: i32,
     #[uniform(9)]
     reduce_background: i32,
+    #[uniform(10)]
+    x_offset: Vec3,
 
     #[texture(1)]
     #[sampler(2)]
@@ -74,7 +81,7 @@ pub struct NebulaeMaterial {
 }
 
 impl NebulaeMaterial {
-    fn new(options: &Options, asset_server: &mut Assets<Image>) -> Self {
+    fn new(options: &Options, asset_server: &mut Assets<Image>, x_offset: f32) -> Self {
         let (image, bg) = options.colorscheme.gradient_image_with_bg();
 
         NebulaeMaterial {
@@ -83,10 +90,11 @@ impl NebulaeMaterial {
             seed: rand::random::<f32>() % 10.,
             pixels: options.pixels,
             background_color: bg.to_srgba().to_vec4(),
-            uv_correct: Vec2::new(1.0, 1.0),
+            uv_correct: Vec2::new(0.9, 1.6),
             color_texture: Some(asset_server.add(image)),
             should_tile: options.tile as i32,
             reduce_background: options.darken as i32,
+            x_offset: Vec3::new(x_offset, 0., 0.),
         }
     }
 }

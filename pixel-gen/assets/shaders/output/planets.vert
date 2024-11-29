@@ -6,7 +6,7 @@ layout(location = 2) in vec2 Vertex_Uv;
 
 layout(location = 0) out vec2 UV;
 
-layout(set = 2, binding = 10) uniform vec3 position;
+layout(set = 2, binding = 7) uniform vec3 position;
 
 layout(set = 0, binding = 0) uniform CameraViewProj {
     mat4 ViewProj;
@@ -20,12 +20,10 @@ layout(set = 0, binding = 0) uniform CameraViewProj {
 
 void main() {
     UV = Vertex_Uv;
-    gl_Position = vec4(Vertex_Position, 1.0);
     // Translate the vertex position by the object's position
-    vec4 worldPosition = vec4(Vertex_Position , 1.0);
+    vec4 worldPosition = vec4(Vertex_Position + position, 1.0);
     // Transform the position to clip space using the ViewProj matrix
     gl_Position = ViewProj * worldPosition;
-
 }
 
 

@@ -5,7 +5,7 @@ use bevy::{
     sprite::{Material2d, MaterialMesh2dBundle},
 };
 
-use crate::menu::Options;
+use crate::{menu::Options, ScreenSize};
 
 #[derive(Event)]
 pub struct SpawnStarStuffEvent;
@@ -25,6 +25,7 @@ pub fn spawn_star_stuff(
     options: Res<Options>,
     current_nebulae: Query<Entity, With<StarStuff>>,
     mut asset_server: ResMut<Assets<Image>>,
+    screen_size: Res<ScreenSize>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -42,8 +43,14 @@ pub fn spawn_star_stuff(
     commands.spawn((
         StarStuff,
         MaterialMesh2dBundle {
-            mesh: meshes.add(Rectangle::default()).into(),
-            material: materials.add(StarStuffMaterial::new(&options, &mut asset_server)),
+            mesh: meshes
+                .add(Rectangle::from_size(Vec2::splat(screen_size.0.y)))
+                .into(),
+            material: materials.add(StarStuffMaterial::new(
+                &options,
+                &mut asset_server,
+                -(screen_size.0.x / 2.),
+            )),
             ..default()
         },
     ));
@@ -65,6 +72,8 @@ pub struct StarStuffMaterial {
     should_tile: i32,
     #[uniform(8)]
     reduce_background: i32,
+    #[uniform(9)]
+    position: Vec3,
 
     #[texture(1)]
     #[sampler(2)]
@@ -72,7 +81,7 @@ pub struct StarStuffMaterial {
 }
 
 impl StarStuffMaterial {
-    fn new(options: &Options, asset_server: &mut Assets<Image>) -> Self {
+    fn new(options: &Options, asset_server: &mut Assets<Image>, x_offset: f32) -> Self {
         StarStuffMaterial {
             size: 5.0,
             octaves: 3,
@@ -82,6 +91,7 @@ impl StarStuffMaterial {
             color_texture: Some(asset_server.add(options.colorscheme.gradient_image_with_bg().0)),
             should_tile: options.tile as i32,
             reduce_background: options.darken as i32,
+            position: Vec3::new(x_offset, 0., 0.),
         }
     }
 }

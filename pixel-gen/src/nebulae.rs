@@ -43,11 +43,13 @@ pub fn spawn_nebulae(
     commands.spawn((
         Nebulae,
         MaterialMesh2dBundle {
-            mesh: meshes.add(Rectangle::default()).into(),
+            mesh: meshes
+                .add(Rectangle::from_size(Vec2::splat(screen_size.0.y)))
+                .into(),
             material: materials.add(NebulaeMaterial::new(
                 &options,
                 &mut asset_server,
-                -(screen_size.0.x / 2.),
+                screen_size.x_offset(),
             )),
             ..default()
         },

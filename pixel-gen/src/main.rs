@@ -1,13 +1,12 @@
 use bevy::{
     prelude::*,
-    sprite::{Material2dPlugin, MaterialMesh2dBundle},
+    sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle},
     window::WindowMode,
 };
 use menu::{Options, DEFAULT_OPTIONS};
 use nebulae::SpawnNebulaeEvent;
 use planets::SpawnPlanetsEvent;
 use star_stuff::SpawnStarStuffEvent;
-use utils::colors::hex_to_color;
 
 mod colorscheme;
 mod menu;
@@ -15,13 +14,13 @@ mod nebulae;
 mod planets;
 mod star_stuff;
 
-const BACKGROUND_COLOR: &str = "#04183c";
-
 #[derive(Resource)]
-struct ScreenSize(Vec2);
+struct ScreenSize(pub Vec2);
 
-fn background_color() -> Color {
-    hex_to_color(BACKGROUND_COLOR)
+impl ScreenSize {
+    pub fn x_offset(&self) -> f32 {
+        -((self.0.x / 2.) - (self.0.y / 2.))
+    }
 }
 
 fn main() {
@@ -49,6 +48,7 @@ fn main() {
             PostStartup,
             (nebulae::setup, star_stuff::setup, planets::setup),
         )
+        .add_systems(FixedUpdate, update_screen_size)
         .add_systems(
             Update,
             (
@@ -67,6 +67,14 @@ fn main() {
 
 #[derive(Event)]
 pub struct SpawnBackgroundEvent;
+
+fn update_screen_size(query: Query<&Window>, mut screen_size: ResMut<ScreenSize>) {
+    let Ok(window) = query.get_single() else {
+        return;
+    };
+
+    screen_size.0 = window.size();
+}
 
 fn setup(
     mut writer: EventWriter<SpawnBackgroundEvent>,
@@ -134,3 +142,38 @@ fn controls(
     spawn_planets.send(SpawnPlanetsEvent);
     spawn_bg.send(SpawnBackgroundEvent);
 }
+
+// TODO: Think about this
+/*
+#[derive(SystemParam)]
+struct MeshSpawnerParams<'w, 's, E, M, C>
+where
+    E: Event,
+    M: Material2d,
+    C: Component,
+{
+    trigger: EventReader<'w, 's, E>,
+    commands: Commands<'w, 's>,
+    meshes: ResMut<'w, Assets<Mesh>>,
+    materials: ResMut<'w, Assets<M>>,
+    images: ResMut<'w, Assets<Image>>,
+    options: Res<'w, Options>,
+    query: Query<'w, 's, Entity, With<C>>,
+}
+
+fn spawn_element<E, M, C>(mut params: MeshSpawnerParams<E, M, C>)
+where
+    E: Event,
+    M: Material2d,
+    C: Component,
+{
+    let Some(_) = params.trigger.read().next() else {
+        return;
+    };
+    params.trigger.clear();
+
+    if let Ok(entity) = params.query.get_single() {
+        params.commands.entity(entity).despawn_recursive();
+    }
+}
+*/

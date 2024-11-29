@@ -49,7 +49,7 @@ pub fn spawn_star_stuff(
             material: materials.add(StarStuffMaterial::new(
                 &options,
                 &mut asset_server,
-                -(screen_size.0.x / 2.),
+                screen_size.x_offset(),
             )),
             ..default()
         },

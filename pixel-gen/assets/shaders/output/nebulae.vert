@@ -22,7 +22,7 @@ void main() {
     UV = Vertex_Uv;
     gl_Position = vec4(Vertex_Position, 1.0);
     // Translate the vertex position by the object's position
-    vec4 worldPosition = vec4(Vertex_Position , 1.0);
+    vec4 worldPosition = vec4(Vertex_Position + position, 1.0);
     // Transform the position to clip space using the ViewProj matrix
     gl_Position = ViewProj * worldPosition;
 

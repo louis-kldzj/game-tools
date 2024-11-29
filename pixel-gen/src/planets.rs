@@ -5,7 +5,7 @@ use bevy::{
 };
 use rand::Rng;
 
-use crate::menu::Options;
+use crate::{menu::Options, ScreenSize};
 
 #[derive(Event)]
 pub struct SpawnPlanetsEvent;
@@ -59,6 +59,7 @@ pub fn spawn_planets(
     options: Res<Options>,
     current_planet: Query<Entity, With<Planets>>,
     mut images: ResMut<Assets<Image>>,
+    screen_size: Res<ScreenSize>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -73,15 +74,11 @@ pub fn spawn_planets(
         return;
     }
 
-    let position = (rand::random::<Vec3>() * Vec3::splat(20.)).with_z(1.);
-
-    info!("position {position}");
-
     commands.spawn((
         Planets { scale: 1. },
         MaterialMesh2dBundle {
             mesh: meshes.add(Circle::new(50.)).into(),
-            material: materials.add(PlanetsMaterial::new(&options, &mut images)),
+            material: materials.add(PlanetsMaterial::new(&options, &mut images, &screen_size)),
             transform: Transform::from_translation(Vec3::ZERO.with_z(1.0)),
             ..default()
         },
@@ -109,16 +106,18 @@ pub struct PlanetsMaterial {
 }
 
 impl PlanetsMaterial {
-    fn new(options: &Options, asset_server: &mut Assets<Image>) -> Self {
+    fn new(options: &Options, asset_server: &mut Assets<Image>, screen_size: &ScreenSize) -> Self {
+        let half_square = screen_size.0.y / 2.;
+        let x_offset = screen_size.x_offset();
         let mut rng = rand::thread_rng();
-        let x = rng.gen_range(-1200.0..1200.0);
-        let y = rng.gen_range(-1000.0..1000.0);
+        let x = rng.gen_range((x_offset - half_square)..(x_offset + half_square));
+        let y = rng.gen_range(-half_square..half_square);
         PlanetsMaterial {
-            size: 5.365,
+            size: 1.,
             octaves: 3,
-            seed: rand::random::<f32>() % 10.0,
-            pixels: options.pixels,
-            light_origin: Vec2::new(1.617, 0.637),
+            seed: rng.gen_range(1.0..10.0),
+            pixels: 100.0,
+            light_origin: Vec2::new(rand::random(), rand::random()),
             color_texture: Some(asset_server.add(options.colorscheme.gradient_image_with_bg().0)),
             position: Vec3::new(x, y, 2.0),
         }

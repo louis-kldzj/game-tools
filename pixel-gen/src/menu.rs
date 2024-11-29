@@ -59,7 +59,7 @@ pub fn change_options(
 
     text.sections = vec![TextSection::new(
         format!(
-            "TILE<{}> DUST<{}> ALPHA<{}> STARS<{}> NEB<{}> DARK<{}> COLORSCHEME<{:?}> PLANETS<{}>",
+            "TILE: {}\nDUST: {}\nALPHA: {}\nSTARS: {}\nNEB: {}\nDARK: {}\nCOLORSCHEME: {:?}\nPLANETS: {}",
             options.tile,
             options.dust,
             options.transparency,

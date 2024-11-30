@@ -1,6 +1,7 @@
 use bevy::prelude::*;
+use gooey_ui::Element;
 
-use crate::ScreenSize;
+use crate::{options::Options, ScreenSize};
 
 #[derive(Event)]
 pub struct SpawnMenuEvent;
@@ -18,6 +19,7 @@ pub fn spawn_menu(
     asset_server: Res<AssetServer>,
     screen_size: Res<ScreenSize>,
     existing_query: Query<Entity, With<Menu>>,
+    options: Res<Options>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -72,12 +74,21 @@ pub fn spawn_menu(
                             ));
                         });
                     builder.spawn(TextBundle::from_section(
-                        "BOOO!",
+                        "PIXELS",
                         default_text_style(&asset_server),
                     ));
                 });
         });
 }
+
+const MENU: gooey_ui::Element = Element::Logical(gooey_ui::Config {
+    id: "ROOT",
+    style: Style {
+        left: Val::Percent(),
+        width: Val::Px()..default(),
+    },
+    children: vec![],
+});
 
 fn default_text_style(asset_server: &AssetServer) -> TextStyle {
     TextStyle {

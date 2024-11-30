@@ -1,0 +1,8 @@
+[package]
+name = "gooey-ui"
+version = "0.1.0"
+edition = "2021"
+description = "pronounced goo-e-u-e"
+
+[dependencies]
+bevy = { version = "0.14.2", default-features = false, features = [] }

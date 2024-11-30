@@ -1606,6 +1606,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "gooey-ui"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "gpu-alloc"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2406,6 +2413,7 @@ name = "pixel-gen"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "gooey-ui",
  "rand",
  "utils",
 ]

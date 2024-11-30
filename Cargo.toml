@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["pixel-gen", "utils"]
+members = ["gooey-ui", "pixel-gen", "utils"]
 
 [profile.release]
 lto = true

@@ -19,3 +19,4 @@ bevy = { version = "0.14.2", default-features = false, features = [
 ] }
 rand = "0.8.5"
 utils = { path = "../utils/" }
+gooey-ui = { path = "../gooey-ui/" }

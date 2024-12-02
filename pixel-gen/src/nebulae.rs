@@ -44,7 +44,7 @@ pub fn spawn_nebulae(
         Nebulae,
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(Rectangle::from_size(Vec2::splat(screen_size.0.y)))
+                .add(Rectangle::from_size(Vec2::splat(screen_size.space.height)))
                 .into(),
             material: materials.add(NebulaeMaterial::new(
                 &options,

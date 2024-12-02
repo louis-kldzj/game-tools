@@ -11,9 +11,10 @@
 
 use bevy::prelude::*;
 
-struct Space {
-    width: f32,
-    height: f32,
+#[derive(Clone, Copy, PartialEq, PartialOrd, Default)]
+pub struct Space {
+    pub width: f32,
+    pub height: f32,
 }
 
 impl Space {

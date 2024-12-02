@@ -9,6 +9,7 @@ use planets::SpawnPlanetsEvent;
 use rand::Rng;
 use star_stuff::SpawnStarStuffEvent;
 use ui::SpawnMenuEvent;
+use utils::screenspace::Space;
 
 mod colorscheme;
 mod nebulae;
@@ -17,22 +18,31 @@ mod planets;
 mod star_stuff;
 mod ui;
 
-#[derive(Resource)]
-struct ScreenSize(pub Vec2);
-
-const DEFAULT_SCREEN_SIZE: Vec2 = Vec2 { x: 3840., y: 2160. };
+#[derive(Resource, Default)]
+struct ScreenSize {
+    space: Space,
+}
 
 impl ScreenSize {
+    pub fn set(&mut self, size: Vec2) {
+        self.space.width = size.x;
+        self.space.height = size.y;
+    }
+
+    pub fn vec2(&self) -> Vec2 {
+        Vec2::new(self.space.width, self.space.height)
+    }
+
     pub fn x_offset(&self) -> f32 {
-        -((self.0.x / 2.) - (self.0.y / 2.))
+        -((self.vec2().x / 2.) - (self.vec2().y / 2.))
     }
 
     pub fn left(&self) -> f32 {
-        self.0.y
+        self.vec2().y
     }
 
     pub fn width(&self) -> f32 {
-        self.0.x - self.left()
+        self.vec2().x - self.left()
     }
 }
 
@@ -56,7 +66,7 @@ fn main() {
         .add_event::<SpawnBackgroundEvent>()
         .add_event::<ui::SpawnMenuEvent>()
         .add_event::<RefreshAllEvent>()
-        .insert_resource(ScreenSize(DEFAULT_SCREEN_SIZE))
+        .insert_resource(ScreenSize::default())
         .insert_resource(DEFAULT_OPTIONS)
         .add_systems(
             Startup,
@@ -92,7 +102,7 @@ fn update_screen_size(query: Query<&Window>, mut screen_size: ResMut<ScreenSize>
         return;
     };
 
-    screen_size.0 = window.size();
+    screen_size.set(window.size());
 }
 
 fn setup(mut writer: EventWriter<SpawnBackgroundEvent>) {
@@ -118,7 +128,7 @@ fn spawn_bg(
     };
 
     let size = window.size();
-    screen_size.0 = size;
+    screen_size.set(size);
 
     commands.spawn(MaterialMesh2dBundle {
         mesh: meshes.add(Rectangle::new(size.x, size.y)).into(),

@@ -35,7 +35,7 @@ pub fn spawn_menu(
             Menu,
             NodeBundle {
                 style: Style {
-                    left: Val::Px(screen_size.left()),
+                    left: Val::Percent(100. / screen_size.space.ratio()),
                     width: Val::Px(screen_size.width()),
                     ..default()
                 },
@@ -81,14 +81,16 @@ pub fn spawn_menu(
         });
 }
 
-const MENU: gooey_ui::Element = Element::Logical(gooey_ui::Config {
-    id: "ROOT",
-    style: Style {
-        left: Val::Percent(),
-        width: Val::Px()..default(),
-    },
-    children: vec![],
-});
+fn menu(screen_size: &ScreenSize) -> gooey_ui::Element {
+    Element::Logical(gooey_ui::Config {
+        id: "ROOT",
+        style: Style {
+            left: Val::Percent(100. / screen_size.space.ratio()),
+            ..default()
+        },
+        children: vec![],
+    })
+}
 
 fn default_text_style(asset_server: &AssetServer) -> TextStyle {
     TextStyle {

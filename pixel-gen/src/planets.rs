@@ -111,7 +111,7 @@ pub struct PlanetsMaterial {
 
 impl PlanetsMaterial {
     fn new(options: &Options, asset_server: &mut Assets<Image>, screen_size: &ScreenSize) -> Self {
-        let half_square = screen_size.0.y / 2.;
+        let half_square = screen_size.space.height / 2.;
         let x_offset = screen_size.x_offset();
         let mut rng = rand::thread_rng();
         let x = rng.gen_range((x_offset - half_square)..(x_offset + half_square));

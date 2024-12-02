@@ -29,9 +29,7 @@ pub const DEFAULT_OPTIONS: Options = Options {
 
 pub fn change_options(
     mut options: ResMut<Options>,
-    mut text: Query<&mut Text>,
     kb_input: Res<ButtonInput<KeyCode>>,
-    asset_server: Res<AssetServer>,
     mut refresh_all: EventWriter<RefreshAllEvent>,
 ) {
     if kb_input.just_pressed(KeyCode::KeyC) {
@@ -54,42 +52,6 @@ pub fn change_options(
     } else {
         return;
     }
-    let Ok(mut text) = text.get_single_mut() else {
-        return;
-    };
-
-    text.sections = vec![TextSection::new(
-        format!(
-            "TILE: {}\nDUST: {}\nALPHA: {}\nSTARS: {}\nNEB: {}\nDARK: {}\nCOLORSCHEME: {:?}\nPLANETS: {}",
-            options.tile,
-            options.dust,
-            options.transparency,
-            options.stars,
-            options.nebulae,
-            options.darken,
-            options.colorscheme,
-            options.planets
-        ),
-        TextStyle {
-            font: asset_server.load("slkscre.ttf"),
-            font_size: 48.,
-            color: Color::WHITE,
-        },
-    )];
 
     refresh_all.send(RefreshAllEvent);
-}
-
-pub fn spawn_debug_text(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(TextBundle {
-        text: Text::from_section(
-            "DEBUG: ",
-            TextStyle {
-                font: asset_server.load("slkscre.ttf"),
-                font_size: 48.,
-                color: Color::WHITE,
-            },
-        ),
-        ..default()
-    });
 }

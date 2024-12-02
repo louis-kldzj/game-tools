@@ -68,10 +68,7 @@ fn main() {
         .add_event::<RefreshAllEvent>()
         .insert_resource(ScreenSize::default())
         .insert_resource(DEFAULT_OPTIONS)
-        .add_systems(
-            Startup,
-            (spawn_camera, options::spawn_debug_text, setup, ui::setup),
-        )
+        .add_systems(Startup, (spawn_camera, setup, ui::setup))
         .add_systems(
             PostStartup,
             (nebulae::setup, star_stuff::setup, planets::setup),
@@ -166,7 +163,7 @@ fn controls(
 
     spawn_nebulae.send(SpawnNebulaeEvent);
     spawn_star_stuff.send(SpawnStarStuffEvent);
-    for _ in 0..rand::thread_rng().gen_range(1..5) {
+    for _ in 0..=rand::thread_rng().gen_range(1..4) {
         spawn_planets.send(SpawnPlanetsEvent);
     }
     spawn_bg.send(SpawnBackgroundEvent);

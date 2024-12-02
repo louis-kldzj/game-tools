@@ -39,6 +39,10 @@ impl ColorScheme {
         }
     }
 
+    pub fn bg_color(&self) -> Color {
+        utils::colors::hex_to_color(self.colors()[1])
+    }
+
     pub fn gradient_image_with_bg(&self) -> (Image, Color) {
         let colors = self.colors();
         (

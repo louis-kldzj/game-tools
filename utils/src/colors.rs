@@ -8,6 +8,18 @@ use bevy::{
     },
 };
 
+pub enum Easle {
+    Parchment,
+}
+
+impl Easle {
+    pub fn as_color(self) -> Color {
+        match self {
+            Easle::Parchment => hex_to_color("#c3a38a"),
+        }
+    }
+}
+
 pub fn hex_to_vec4(hex: &str) -> Vec4 {
     match hex_to_srgb(hex) {
         Ok((x, y, z)) => Vec4::new(x, y, z, 1.),

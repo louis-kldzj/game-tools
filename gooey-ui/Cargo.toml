@@ -6,3 +6,4 @@ description = "pronounced goo-e-u-e"
 
 [dependencies]
 bevy = { version = "0.14.2", default-features = false, features = [] }
+utils = { path = "../utils/" }

@@ -3,7 +3,7 @@ use bevy::prelude::*;
 #[derive(Component)]
 struct ElementId(&'static str);
 
-pub struct UiText(pub &'static str, pub TextStyle);
+pub struct UiText(pub String, pub TextStyle);
 
 impl UiText {
     pub fn to_text(self) -> Text {

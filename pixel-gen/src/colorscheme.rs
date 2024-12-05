@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use bevy::{color::Color, prelude::Image};
 
 #[derive(Debug)]
@@ -6,6 +8,12 @@ pub enum ColorScheme {
     Nyx8,
     Ammo8,
     FunkyFutures,
+}
+
+impl Display for ColorScheme {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 impl ColorScheme {

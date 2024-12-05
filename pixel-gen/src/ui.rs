@@ -48,7 +48,12 @@ fn menu(
         },
         children: vec![
             Element::Button {
-                text: ui_text_for_button("NEW IMAGE", asset_server, options.colorscheme.bg_color()),
+                text: ui_text_for_button(
+                    "NEW IMAGE",
+                    asset_server,
+                    options.colorscheme.bg_color(),
+                    "",
+                ),
                 config: gooey_ui::Config {
                     id: "NEW-IMAGE",
                     style: Style {
@@ -62,7 +67,7 @@ fn menu(
                 },
             },
             Element::Text {
-                text: ui_text("SIZE (PIXELS):", asset_server),
+                text: ui_text("SIZE (PIXELS):", asset_server, ""),
                 config: gooey_ui::Config {
                     id: "LABEL-1",
                     style: Style::default(),
@@ -70,7 +75,7 @@ fn menu(
                 },
             },
             Element::Text {
-                text: ui_text("WIDTH:", asset_server),
+                text: ui_text("WIDTH:", asset_server, options.pixels.to_string().as_str()),
                 config: gooey_ui::Config {
                     id: "LABEL-WIDTH",
                     style: Style::default(),
@@ -78,7 +83,7 @@ fn menu(
                 },
             },
             Element::Text {
-                text: ui_text("HEIGHT:", asset_server),
+                text: ui_text("HEIGHT:", asset_server, options.pixels.to_string().as_str()),
                 config: gooey_ui::Config {
                     id: "LABEL-HEIGHT",
                     style: Style::default(),
@@ -86,7 +91,11 @@ fn menu(
                 },
             },
             Element::Text {
-                text: ui_text("COLORSCHEME:", asset_server),
+                text: ui_text(
+                    "COLORSCHEME:",
+                    asset_server,
+                    options.colorscheme.to_string().as_str(),
+                ),
                 config: gooey_ui::Config {
                     id: "LABEL-CS",
                     style: Style::default(),
@@ -94,50 +103,80 @@ fn menu(
                 },
             },
             Element::Button {
-                text: ui_text_for_button("STARS:", asset_server, options.colorscheme.bg_color()),
+                text: ui_text_for_button(
+                    "STARS:",
+                    asset_server,
+                    options.colorscheme.bg_color(),
+                    options.stars.to_string().as_str(),
+                ),
                 config: gooey_ui::Config {
                     id: "BTN-STARS",
-                    style: button_style(),
+                    style: main_options_style(),
                     children: vec![],
                 },
             },
             Element::Button {
-                text: ui_text_for_button("DUST:", asset_server, options.colorscheme.bg_color()),
+                text: ui_text_for_button(
+                    "DUST:",
+                    asset_server,
+                    options.colorscheme.bg_color(),
+                    options.dust.to_string().as_str(),
+                ),
                 config: gooey_ui::Config {
                     id: "BTN-DUST",
-                    style: button_style(),
+                    style: main_options_style(),
                     children: vec![],
                 },
             },
             Element::Button {
-                text: ui_text_for_button("NEBULAE:", asset_server, options.colorscheme.bg_color()),
+                text: ui_text_for_button(
+                    "NEBULAE:",
+                    asset_server,
+                    options.colorscheme.bg_color(),
+                    options.nebulae.to_string().as_str(),
+                ),
                 config: gooey_ui::Config {
                     id: "BTN-NEBULAE",
-                    style: button_style(),
+                    style: main_options_style(),
                     children: vec![],
                 },
             },
             Element::Button {
-                text: ui_text_for_button("PLANETS:", asset_server, options.colorscheme.bg_color()),
+                text: ui_text_for_button(
+                    "PLANETS:",
+                    asset_server,
+                    options.colorscheme.bg_color(),
+                    options.planets.to_string().as_str(),
+                ),
                 config: gooey_ui::Config {
                     id: "BTN-PLANETS",
-                    style: button_style(),
+                    style: main_options_style(),
                     children: vec![],
                 },
             },
             Element::Button {
-                text: ui_text_for_button("TILE:", asset_server, options.colorscheme.bg_color()),
+                text: ui_text_for_button(
+                    "TILE:",
+                    asset_server,
+                    options.colorscheme.bg_color(),
+                    options.tile.to_string().as_str(),
+                ),
                 config: gooey_ui::Config {
                     id: "BTN-TILE",
-                    style: button_style(),
+                    style: main_options_style(),
                     children: vec![],
                 },
             },
             Element::Button {
-                text: ui_text_for_button("DARKEN:", asset_server, options.colorscheme.bg_color()),
+                text: ui_text_for_button(
+                    "DARKEN:",
+                    asset_server,
+                    options.colorscheme.bg_color(),
+                    options.darken.to_string().as_str(),
+                ),
                 config: gooey_ui::Config {
                     id: "BTN-DARKEN",
-                    style: button_style(),
+                    style: main_options_style(),
                     children: vec![],
                 },
             },
@@ -146,15 +185,26 @@ fn menu(
                     "TRANSPARENCY:",
                     asset_server,
                     options.colorscheme.bg_color(),
+                    options.transparency.to_string().as_str(),
                 ),
                 config: gooey_ui::Config {
                     id: "BTN-TRANSPARENCY",
-                    style: button_style(),
+                    style: main_options_style(),
                     children: vec![],
                 },
             },
         ],
     })
+}
+
+fn main_options_style() -> Style {
+    Style {
+        height: Val::Px(65.),
+        border: UiRect::all(Val::Px(5.)),
+        align_items: AlignItems::Center,
+        justify_content: JustifyContent::FlexStart,
+        ..default()
+    }
 }
 
 fn button_style() -> Style {
@@ -167,15 +217,18 @@ fn button_style() -> Style {
     }
 }
 
-fn ui_text(text: &'static str, asset_server: &AssetServer) -> UiText {
+fn ui_text(text: &str, asset_server: &AssetServer, value: &str) -> UiText {
     UiText(
-        text,
+        format!("{text} {value}"),
         default_text_style_with_color(asset_server, utils::Easle::Parchment.as_color()),
     )
 }
 
-fn ui_text_for_button(text: &'static str, asset_server: &AssetServer, color: Color) -> UiText {
-    UiText(text, default_text_style_with_color(asset_server, color))
+fn ui_text_for_button(text: &str, asset_server: &AssetServer, color: Color, value: &str) -> UiText {
+    UiText(
+        format!("{text} {value}"),
+        default_text_style_with_color(asset_server, color),
+    )
 }
 
 fn default_text_style(asset_server: &AssetServer) -> TextStyle {

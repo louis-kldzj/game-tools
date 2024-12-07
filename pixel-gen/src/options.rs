@@ -13,10 +13,11 @@ pub struct Options {
     pub tile: bool,
     pub darken: bool,
     pub transparency: bool,
+    pub animate: bool,
 }
 
 pub const DEFAULT_OPTIONS: Options = Options {
-    pixels: 1000.0,
+    pixels: 200.0,
     colorscheme: ColorScheme::FunkyFutures,
     stars: true,
     dust: true,
@@ -25,6 +26,7 @@ pub const DEFAULT_OPTIONS: Options = Options {
     tile: false,
     darken: false,
     transparency: false,
+    animate: false,
 };
 
 pub fn change_options(
@@ -49,6 +51,8 @@ pub fn change_options(
         options.darken = !options.darken;
     } else if kb_input.just_pressed(KeyCode::KeyP) {
         options.planets = !options.planets;
+    } else if kb_input.just_pressed(KeyCode::KeyM) {
+        options.animate = !options.animate;
     } else {
         return;
     }

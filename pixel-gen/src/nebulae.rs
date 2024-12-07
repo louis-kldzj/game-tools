@@ -2,8 +2,9 @@ use bevy::{
     prelude::*,
     reflect::TypePath,
     render::render_resource::{AsBindGroup, ShaderRef},
-    sprite::{Material2d, MaterialMesh2dBundle},
+    sprite::{Material2d, MaterialMesh2dBundle, Mesh2dHandle},
 };
+use rand::Rng;
 
 use crate::{options::Options, ScreenSize};
 
@@ -15,6 +16,44 @@ pub struct Nebulae;
 
 pub fn setup(mut event_writer: EventWriter<SpawnNebulaeEvent>) {
     event_writer.send(SpawnNebulaeEvent);
+}
+
+const ANIMATION_FACTOR: f32 = 0.001;
+const ANIMATION_RANGE: f32 = 10.;
+
+pub fn animate_shader(
+    time: Res<Time>,
+    options: Res<Options>,
+    mut timer: ResMut<crate::Timer>,
+    mut material: Query<&mut Handle<NebulaeMaterial>, With<Nebulae>>,
+    mut neb: ResMut<Assets<NebulaeMaterial>>,
+) {
+    if !options.animate {
+        return;
+    }
+
+    timer.0 += time.delta_seconds();
+
+    let Ok(mesh) = material.get_single_mut() else {
+        return;
+    };
+
+    let mat = neb.get_mut(mesh.into_inner().id()).unwrap();
+
+    if timer.0 >= timer.1 {
+        timer.0 = 0.;
+        timer.2 = mat.size
+            + if timer.3 {
+                ANIMATION_RANGE
+            } else {
+                -ANIMATION_RANGE
+            };
+        timer.3 = !timer.3;
+    }
+
+    mat.size = mat
+        .size
+        .lerp(timer.2, time.delta_seconds() * ANIMATION_FACTOR);
 }
 
 pub fn spawn_nebulae(
@@ -50,6 +89,7 @@ pub fn spawn_nebulae(
                 &options,
                 &mut asset_server,
                 screen_size.x_offset(),
+                &screen_size,
             )),
             ..default()
         },
@@ -76,6 +116,8 @@ pub struct NebulaeMaterial {
     reduce_background: i32,
     #[uniform(10)]
     x_offset: Vec3,
+    #[uniform(11)]
+    time: f32,
 
     #[texture(1)]
     #[sampler(2)]
@@ -83,18 +125,25 @@ pub struct NebulaeMaterial {
 }
 
 impl NebulaeMaterial {
-    fn new(options: &Options, asset_server: &mut Assets<Image>, x_offset: f32) -> Self {
+    fn new(
+        options: &Options,
+        asset_server: &mut Assets<Image>,
+        x_offset: f32,
+        screen_size: &ScreenSize,
+    ) -> Self {
         let (image, bg) = options.colorscheme.gradient_image_with_bg();
+        let mut rng = rand::thread_rng();
 
         NebulaeMaterial {
-            size: 5.0,
-            octaves: 3,
-            seed: rand::random::<f32>() % 10.,
+            size: (screen_size.space.height / options.pixels),
+            octaves: rng.gen_range(3..5),
+            seed: rng.gen_range(1.0..50.0),
             pixels: options.pixels,
             background_color: bg.to_srgba().to_vec4(),
-            uv_correct: Vec2::new(0.9, 1.6),
+            uv_correct: Vec2::new(1., 1.),
             color_texture: Some(asset_server.add(image)),
             should_tile: options.tile as i32,
+            time: 0.,
             reduce_background: options.darken as i32,
             x_offset: Vec3::new(x_offset, 0., 0.),
         }

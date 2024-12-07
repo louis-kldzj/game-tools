@@ -13,6 +13,8 @@ layout(set = 2, binding = 7) uniform vec2 uv_correct;
 layout(set = 2, binding = 8) uniform int should_tile;
 layout(set = 2, binding = 9) uniform int reduce_background;
 
+layout(set = 2, binding = 11) uniform float time;
+
 layout(set = 2, binding = 1) uniform texture2D texture_;
 layout(set = 2, binding = 2) uniform sampler sampler_;
 
@@ -35,7 +37,7 @@ float noise(vec2 coord, float tilesize) {
 
     vec2 cubic = f * f * (3.0 - 2.0 * f);
 
-    return mix(a, b, cubic.x) + (c - a) * cubic.y * (1.0 - cubic.x) + (d - b) * cubic.x * cubic.y;
+    return (mix(a, b, cubic.x) + (c - a) * cubic.y * (1.0 - cubic.x) + (d - b) * cubic.x * cubic.y) + time;
 }
 
 float fbm(vec2 coord, float tilesize) {

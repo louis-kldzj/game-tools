@@ -4,6 +4,7 @@ use bevy::{
     render::render_resource::{AsBindGroup, ShaderRef},
     sprite::{Material2d, MaterialMesh2dBundle},
 };
+use rand::Rng;
 
 use crate::{options::Options, ScreenSize};
 
@@ -50,6 +51,7 @@ pub fn spawn_star_stuff(
                 &options,
                 &mut asset_server,
                 screen_size.x_offset(),
+                &screen_size,
             )),
             ..default()
         },
@@ -81,11 +83,18 @@ pub struct StarStuffMaterial {
 }
 
 impl StarStuffMaterial {
-    fn new(options: &Options, asset_server: &mut Assets<Image>, x_offset: f32) -> Self {
+    fn new(
+        options: &Options,
+        asset_server: &mut Assets<Image>,
+        x_offset: f32,
+        screen_size: &ScreenSize,
+    ) -> Self {
+        let mut rng = rand::thread_rng();
+
         StarStuffMaterial {
-            size: 5.0,
-            octaves: 3,
-            seed: rand::random::<f32>() % 10.,
+            size: screen_size.space.height / options.pixels,
+            octaves: rng.gen_range(3..5),
+            seed: rng.gen_range(1.0..50.0),
             pixels: options.pixels,
             uv_correct: Vec2::new(1.0, 1.0),
             color_texture: Some(asset_server.add(options.colorscheme.gradient_image_with_bg().0)),

@@ -16,6 +16,7 @@ mod colorscheme;
 mod nebulae;
 mod options;
 mod planets;
+mod shaders;
 mod star_stuff;
 mod stars;
 mod ui;
@@ -60,6 +61,9 @@ impl ScreenSize {
     }
 }
 
+#[derive(Resource)]
+struct Timer(pub f32, pub f32, pub f32, pub bool);
+
 fn main() {
     App::new()
         .add_plugins((
@@ -84,6 +88,7 @@ fn main() {
         .add_event::<RefreshAllEvent>()
         .insert_resource(ScreenSize::default())
         .insert_resource(DEFAULT_OPTIONS)
+        .insert_resource(Timer(0., 15., 1., false))
         .add_systems(Startup, (spawn_camera, setup, ui::setup))
         .add_systems(
             PostStartup,
@@ -103,6 +108,7 @@ fn main() {
                 (planets::update_scale, planets::lerp_scale).chain(),
                 ui::spawn_menu,
                 stars::spawn_star,
+                nebulae::animate_shader,
             ),
         )
         .run();

@@ -6,7 +6,11 @@ use bevy::{
 };
 use rand::Rng;
 
-use crate::{options::Options, ScreenSize};
+use crate::{
+    options::Options,
+    shaders::{AnimatedMaterial2D, AnimatedMaterialConfig, DefaultAnimationConfig},
+    ScreenSize,
+};
 
 #[derive(Event)]
 pub struct SpawnStarStuffEvent;
@@ -27,6 +31,7 @@ pub fn spawn_star_stuff(
     current_nebulae: Query<Entity, With<StarStuff>>,
     mut asset_server: ResMut<Assets<Image>>,
     screen_size: Res<ScreenSize>,
+    mut animation_config: ResMut<StarStuffConfig>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -41,21 +46,69 @@ pub fn spawn_star_stuff(
         return;
     }
 
+    let mat = StarStuffMaterial::new(
+        &options,
+        &mut asset_server,
+        screen_size.x_offset(),
+        &screen_size,
+    );
+
+    animation_config.start(mat.get());
+
     commands.spawn((
         StarStuff,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(Rectangle::from_size(Vec2::splat(screen_size.space.height)))
                 .into(),
-            material: materials.add(StarStuffMaterial::new(
-                &options,
-                &mut asset_server,
-                screen_size.x_offset(),
-                &screen_size,
-            )),
+            material: materials.add(mat),
             ..default()
         },
     ));
+}
+
+#[derive(Resource)]
+pub struct StarStuffConfig {
+    default: DefaultAnimationConfig,
+}
+
+impl StarStuffConfig {
+    pub fn new() -> Self {
+        StarStuffConfig {
+            default: DefaultAnimationConfig::default(),
+        }
+    }
+}
+
+impl AnimatedMaterialConfig for StarStuffConfig {
+    fn start(&mut self, value: f32) {
+        self.default.start(value);
+    }
+
+    fn progress(&self) -> f32 {
+        self.default.progress()
+    }
+
+    fn update_progress(&mut self, new_progress: f32) {
+        self.default.update_progress(new_progress);
+    }
+
+    fn target(&self) -> f32 {
+        self.default.target()
+    }
+
+    fn change_direction(&mut self) {
+        self.default.target = if self.default.direction {
+            self.default.start - 10.
+        } else {
+            self.default.start
+        };
+        self.default.direction = !self.default.direction;
+    }
+
+    fn speed(&self) -> f32 {
+        self.default.speed()
+    }
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -80,6 +133,16 @@ pub struct StarStuffMaterial {
     #[texture(1)]
     #[sampler(2)]
     color_texture: Option<Handle<Image>>,
+}
+
+impl AnimatedMaterial2D for StarStuffMaterial {
+    fn get(&self) -> f32 {
+        self.size
+    }
+
+    fn update(&mut self, new_value: f32) {
+        self.size = new_value
+    }
 }
 
 impl StarStuffMaterial {

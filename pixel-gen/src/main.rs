@@ -3,11 +3,11 @@ use bevy::{
     sprite::{Material2dPlugin, MaterialMesh2dBundle},
     window::WindowMode,
 };
-use nebulae::SpawnNebulaeEvent;
+use nebulae::{NebulaeConfig, NebulaeMaterial, SpawnNebulaeEvent};
 use options::{Options, DEFAULT_OPTIONS};
 use planets::SpawnPlanetsEvent;
 use rand::Rng;
-use star_stuff::SpawnStarStuffEvent;
+use star_stuff::{SpawnStarStuffEvent, StarStuffConfig};
 use stars::SpawnBigStarEvent;
 use ui::SpawnMenuEvent;
 use utils::screenspace::Space;
@@ -88,7 +88,8 @@ fn main() {
         .add_event::<RefreshAllEvent>()
         .insert_resource(ScreenSize::default())
         .insert_resource(DEFAULT_OPTIONS)
-        .insert_resource(Timer(0., 15., 1., false))
+        .insert_resource(nebulae::NebulaeConfig::new())
+        .insert_resource(star_stuff::StarStuffConfig::new())
         .add_systems(Startup, (spawn_camera, setup, ui::setup))
         .add_systems(
             PostStartup,
@@ -108,7 +109,11 @@ fn main() {
                 (planets::update_scale, planets::lerp_scale).chain(),
                 ui::spawn_menu,
                 stars::spawn_star,
-                nebulae::animate_shader,
+                shaders::animate_material::<NebulaeMaterial, NebulaeConfig>,
+                shaders::animate_material::<
+                    star_stuff::StarStuffMaterial,
+                    star_stuff::StarStuffConfig,
+                >,
             ),
         )
         .run();

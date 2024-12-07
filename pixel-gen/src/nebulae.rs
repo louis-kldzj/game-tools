@@ -1,4 +1,5 @@
 use bevy::{
+    ecs::change_detection,
     prelude::*,
     reflect::TypePath,
     render::render_resource::{AsBindGroup, ShaderRef},
@@ -6,7 +7,11 @@ use bevy::{
 };
 use rand::Rng;
 
-use crate::{options::Options, ScreenSize};
+use crate::{
+    options::Options,
+    shaders::{AnimatedMaterial2D, AnimatedMaterialConfig, DefaultAnimationConfig},
+    ScreenSize,
+};
 
 #[derive(Event)]
 pub struct SpawnNebulaeEvent;
@@ -18,44 +23,6 @@ pub fn setup(mut event_writer: EventWriter<SpawnNebulaeEvent>) {
     event_writer.send(SpawnNebulaeEvent);
 }
 
-const ANIMATION_FACTOR: f32 = 0.001;
-const ANIMATION_RANGE: f32 = 10.;
-
-pub fn animate_shader(
-    time: Res<Time>,
-    options: Res<Options>,
-    mut timer: ResMut<crate::Timer>,
-    mut material: Query<&mut Handle<NebulaeMaterial>, With<Nebulae>>,
-    mut neb: ResMut<Assets<NebulaeMaterial>>,
-) {
-    if !options.animate {
-        return;
-    }
-
-    timer.0 += time.delta_seconds();
-
-    let Ok(mesh) = material.get_single_mut() else {
-        return;
-    };
-
-    let mat = neb.get_mut(mesh.into_inner().id()).unwrap();
-
-    if timer.0 >= timer.1 {
-        timer.0 = 0.;
-        timer.2 = mat.size
-            + if timer.3 {
-                ANIMATION_RANGE
-            } else {
-                -ANIMATION_RANGE
-            };
-        timer.3 = !timer.3;
-    }
-
-    mat.size = mat
-        .size
-        .lerp(timer.2, time.delta_seconds() * ANIMATION_FACTOR);
-}
-
 pub fn spawn_nebulae(
     mut trigger: EventReader<SpawnNebulaeEvent>,
     mut commands: Commands,
@@ -65,6 +32,7 @@ pub fn spawn_nebulae(
     current_nebulae: Query<Entity, With<Nebulae>>,
     mut asset_server: ResMut<Assets<Image>>,
     screen_size: Res<ScreenSize>,
+    mut animation_config: ResMut<NebulaeConfig>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -79,21 +47,65 @@ pub fn spawn_nebulae(
         return;
     }
 
+    let mat = NebulaeMaterial::new(
+        &options,
+        &mut asset_server,
+        screen_size.x_offset(),
+        &screen_size,
+    );
+
+    animation_config.start(mat.get());
+
     commands.spawn((
         Nebulae,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(Rectangle::from_size(Vec2::splat(screen_size.space.height)))
                 .into(),
-            material: materials.add(NebulaeMaterial::new(
-                &options,
-                &mut asset_server,
-                screen_size.x_offset(),
-                &screen_size,
-            )),
+            material: materials.add(mat),
             ..default()
         },
     ));
+}
+
+#[derive(Resource)]
+pub struct NebulaeConfig {
+    default: DefaultAnimationConfig,
+}
+
+impl NebulaeConfig {
+    pub fn new() -> Self {
+        NebulaeConfig {
+            default: DefaultAnimationConfig::default(),
+        }
+    }
+}
+
+// TODO: This could be a derive macro
+impl AnimatedMaterialConfig for NebulaeConfig {
+    fn start(&mut self, value: f32) {
+        self.default.start(value);
+    }
+
+    fn progress(&self) -> f32 {
+        self.default.progress()
+    }
+
+    fn update_progress(&mut self, new_progress: f32) {
+        self.default.update_progress(new_progress);
+    }
+
+    fn target(&self) -> f32 {
+        self.default.target()
+    }
+
+    fn change_direction(&mut self) {
+        self.default.change_direction();
+    }
+
+    fn speed(&self) -> f32 {
+        self.default.speed()
+    }
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -122,6 +134,16 @@ pub struct NebulaeMaterial {
     #[texture(1)]
     #[sampler(2)]
     color_texture: Option<Handle<Image>>,
+}
+
+impl AnimatedMaterial2D for NebulaeMaterial {
+    fn get(&self) -> f32 {
+        self.size
+    }
+
+    fn update(&mut self, new_value: f32) {
+        self.size = new_value
+    }
 }
 
 impl NebulaeMaterial {

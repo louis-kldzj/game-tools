@@ -1,7 +1,11 @@
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    render::render_resource::{AsBindGroup, ShaderRef},
+    sprite::{Material2d, MaterialMesh2dBundle},
+};
 use rand::Rng;
 
-use crate::ScreenSize;
+use crate::{options::Options, ScreenSize};
 
 #[derive(Event)]
 pub struct SpawnBigStarEvent;
@@ -12,10 +16,13 @@ pub struct Star;
 pub fn spawn_star(
     mut events: EventReader<SpawnBigStarEvent>,
     mut commands: Commands,
-    mut layouts: ResMut<Assets<TextureAtlasLayout>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut mats: ResMut<Assets<BigStarMaterial>>,
+    mut images: ResMut<Assets<Image>>,
     query: Query<Entity, With<Star>>,
     assets: Res<AssetServer>,
     screen_size: Res<ScreenSize>,
+    options: Res<Options>,
 ) {
     if events.is_empty() {
         return;
@@ -27,34 +34,53 @@ pub fn spawn_star(
     let mut rng = rand::thread_rng();
 
     for _ in events.read() {
-        let layout = layouts.add(TextureAtlasLayout::from_grid(
-            UVec2::splat(24),
-            6,
-            1,
-            None,
-            None,
-        ));
-
-        let texture = assets.load("stars-special.png");
-
+        let star = assets.load("stars-special.png");
+        let color_gradiant = images.add(options.colorscheme.gradient_image_with_bg().0);
         let position = screen_size.random_postion(1.5);
-        let sprite = SpriteBundle {
-            texture,
-            transform: Transform::from_translation(position)
-                .with_scale(Vec3::splat(rng.gen_range(1.0..2.0))),
+        let index = rng.gen_range(0..6);
+
+        let mesh = MaterialMesh2dBundle {
+            mesh: meshes
+                .add(Rectangle::from_size(Vec2::splat(24. * 2.)))
+                .into(),
+            material: mats.add(BigStarMaterial::new(star, color_gradiant, position, index)),
             ..default()
         };
 
-        let atlas = TextureAtlas {
-            layout,
-            index: rng.gen_range(0..6),
-        };
-
-        commands.spawn((sprite, atlas, Star));
+        commands.spawn((mesh, Star));
     }
 }
 
-pub struct BigStarMaterial {}
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+pub struct BigStarMaterial {
+    #[texture(1)]
+    #[sampler(2)]
+    color_texture: Option<Handle<Image>>,
+    #[uniform(3)]
+    position: Vec3,
+
+    #[texture(4)]
+    #[sampler(5)]
+    image: Option<Handle<Image>>,
+    #[uniform(6)]
+    star_type: i32,
+}
+
+impl BigStarMaterial {
+    fn new(
+        star: Handle<Image>,
+        color_gradiant: Handle<Image>,
+        position: Vec3,
+        star_type: i32,
+    ) -> Self {
+        BigStarMaterial {
+            color_texture: Some(color_gradiant),
+            position,
+            image: Some(star),
+            star_type,
+        }
+    }
+}
 
 impl Material2d for BigStarMaterial {
     fn fragment_shader() -> ShaderRef {

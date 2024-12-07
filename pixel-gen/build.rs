@@ -31,4 +31,14 @@ fn main() {
         "assets/shaders/output/planets.vert",
     )
     .unwrap();
+    std::fs::copy(
+        "assets/shaders/big_star.glsl",
+        "assets/shaders/output/big_star.frag",
+    )
+    .unwrap();
+    std::fs::copy(
+        "assets/shaders/big_star.vert.glsl",
+        "assets/shaders/output/big_star.vert",
+    )
+    .unwrap();
 }

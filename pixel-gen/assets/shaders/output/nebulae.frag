@@ -132,6 +132,8 @@ void main() {
 	}
 	
 	// apply colors
+  // FROM:
+  // vec3 col = texture(colorscheme, vec2(col_value, 0.0)).rgb;
 	vec3 col = texture(sampler2D(texture_, sampler_), vec2(col_value, 0.0)).rgb;
 	if (col_value < 0.1) {
 		col = background_color.rgb;

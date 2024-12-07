@@ -73,6 +73,7 @@ fn main() {
             Material2dPlugin::<nebulae::NebulaeMaterial>::default(),
             Material2dPlugin::<star_stuff::StarStuffMaterial>::default(),
             Material2dPlugin::<planets::PlanetsMaterial>::default(),
+            Material2dPlugin::<stars::BigStarMaterial>::default(),
         ))
         .add_event::<nebulae::SpawnNebulaeEvent>()
         .add_event::<star_stuff::SpawnStarStuffEvent>()

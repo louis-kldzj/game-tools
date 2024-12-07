@@ -111,19 +111,14 @@ pub struct PlanetsMaterial {
 
 impl PlanetsMaterial {
     fn new(options: &Options, asset_server: &mut Assets<Image>, screen_size: &ScreenSize) -> Self {
-        let half_square = screen_size.space.height / 2.;
-        let x_offset = screen_size.x_offset();
-        let mut rng = rand::thread_rng();
-        let x = rng.gen_range((x_offset - half_square)..(x_offset + half_square));
-        let y = rng.gen_range(-half_square..half_square);
         PlanetsMaterial {
             size: 5.365,
             octaves: 3,
-            seed: rng.gen_range(1.0..10.0),
+            seed: rand::thread_rng().gen_range(1.0..10.0),
             pixels: 100.0,
             light_origin: Vec2::new(rand::random(), rand::random()),
             color_texture: Some(asset_server.add(options.colorscheme.gradient_image_with_bg().0)),
-            position: Vec3::new(x, y, 2.0),
+            position: screen_size.random_postion(2.0),
         }
     }
 }

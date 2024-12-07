@@ -8,6 +8,7 @@ use options::{Options, DEFAULT_OPTIONS};
 use planets::SpawnPlanetsEvent;
 use rand::Rng;
 use star_stuff::SpawnStarStuffEvent;
+use stars::SpawnBigStarEvent;
 use ui::SpawnMenuEvent;
 use utils::screenspace::Space;
 
@@ -16,6 +17,7 @@ mod nebulae;
 mod options;
 mod planets;
 mod star_stuff;
+mod stars;
 mod ui;
 
 #[derive(Resource, Default)]
@@ -44,6 +46,18 @@ impl ScreenSize {
     pub fn width(&self) -> f32 {
         self.vec2().x - self.left()
     }
+
+    pub fn random_postion(&self, z: f32) -> Vec3 {
+        if self.space.width == 0. && self.space.height == 0. {
+            return Vec3::ZERO;
+        }
+        let half_square = self.space.height / 2.;
+        let x_offset = self.x_offset();
+        let mut rng = rand::thread_rng();
+        let x = rng.gen_range((x_offset - half_square)..(x_offset + half_square));
+        let y = rng.gen_range(-half_square..half_square);
+        Vec3::new(x, y, z)
+    }
 }
 
 fn main() {
@@ -63,6 +77,7 @@ fn main() {
         .add_event::<nebulae::SpawnNebulaeEvent>()
         .add_event::<star_stuff::SpawnStarStuffEvent>()
         .add_event::<planets::SpawnPlanetsEvent>()
+        .add_event::<stars::SpawnBigStarEvent>()
         .add_event::<SpawnBackgroundEvent>()
         .add_event::<ui::SpawnMenuEvent>()
         .add_event::<RefreshAllEvent>()
@@ -86,6 +101,7 @@ fn main() {
                 spawn_bg,
                 (planets::update_scale, planets::lerp_scale).chain(),
                 ui::spawn_menu,
+                stars::spawn_star,
             ),
         )
         .run();
@@ -153,6 +169,7 @@ fn controls(
     mut spawn_planets: EventWriter<SpawnPlanetsEvent>,
     mut spawn_bg: EventWriter<SpawnBackgroundEvent>,
     mut spawn_menu: EventWriter<SpawnMenuEvent>,
+    mut spawn_big_star: EventWriter<SpawnBigStarEvent>,
 ) {
     if !kb_input.just_released(KeyCode::Space) {
         let Some(_) = refresh_event.read().next() else {
@@ -168,6 +185,9 @@ fn controls(
     }
     spawn_bg.send(SpawnBackgroundEvent);
     spawn_menu.send(SpawnMenuEvent);
+    for _ in 0..=rand::thread_rng().gen_range(10..100) {
+        spawn_big_star.send(stars::SpawnBigStarEvent);
+    }
 }
 
 // TODO: Think about this

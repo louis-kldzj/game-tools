@@ -42,8 +42,6 @@ impl PixelSpace for App {
         .add_event::<RefreshAllEvent>()
         .insert_resource(config::ScreenSize::default())
         .insert_resource(config::DEFAULT_OPTIONS)
-        .insert_resource(nebulae::NebulaeConfig::new())
-        .insert_resource(star_stuff::StarStuffConfig::new())
         .add_systems(Startup, (spawn_camera, background::setup, ui::setup))
         .add_systems(
             PostStartup,
@@ -68,6 +66,7 @@ impl PixelSpace for App {
                     star_stuff::StarStuffMaterial,
                     star_stuff::StarStuffConfig,
                 >,
+                shaders::animate_material::<planets::PlanetsMaterial, planets::PlanetsConfig>,
             ),
         )
     }

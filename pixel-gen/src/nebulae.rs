@@ -27,7 +27,6 @@ pub fn spawn_nebulae(
     current_nebulae: Query<Entity, With<Nebulae>>,
     mut asset_server: ResMut<Assets<Image>>,
     screen_size: Res<config::ScreenSize>,
-    mut animation_config: ResMut<NebulaeConfig>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -49,10 +48,13 @@ pub fn spawn_nebulae(
         &screen_size,
     );
 
+    let mut animation_config = NebulaeConfig::new();
+
     animation_config.start(mat.get(), mat.get() + 1.);
 
     commands.spawn((
         Nebulae,
+        animation_config,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(Rectangle::from_size(Vec2::splat(screen_size.space.height)))
@@ -63,7 +65,7 @@ pub fn spawn_nebulae(
     ));
 }
 
-#[derive(Resource)]
+#[derive(Component)]
 pub struct NebulaeConfig {
     default: shaders::DefaultAnimationConfig,
 }

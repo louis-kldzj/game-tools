@@ -59,7 +59,6 @@ pub fn spawn_planets(
     current_planet: Query<Entity, With<Planets>>,
     mut images: ResMut<Assets<Image>>,
     screen_size: Res<config::ScreenSize>,
-    mut animation_config: ResMut<PlanetsConfig>,
 ) {
     if trigger.is_empty() {
         return;
@@ -74,13 +73,20 @@ pub fn spawn_planets(
     }
 
     for _ in trigger.read() {
+        let mat = PlanetsMaterial::new(&options, &mut images, &screen_size);
+
+        let mut config = PlanetsConfig::new();
+
+        config.start(mat.get(), mat.get() + 10.);
+
         commands.spawn((
             Planets { scale: 1. },
+            config,
             MaterialMesh2dBundle {
                 mesh: meshes
                     .add(Circle::new(rand::thread_rng().gen_range(40.0..70.0)))
                     .into(),
-                material: materials.add(PlanetsMaterial::new(&options, &mut images, &screen_size)),
+                material: materials.add(mat),
                 transform: Transform::from_translation(Vec3::ZERO.with_z(1.0)),
                 ..default()
             },
@@ -156,9 +162,17 @@ impl Material2d for PlanetsMaterial {
     }
 }
 
-#[derive(Resource)]
+#[derive(Component)]
 pub struct PlanetsConfig {
     default: DefaultAnimationConfig,
+}
+
+impl PlanetsConfig {
+    fn new() -> Self {
+        PlanetsConfig {
+            default: DefaultAnimationConfig::default(),
+        }
+    }
 }
 
 impl AnimatedMaterialConfig for PlanetsConfig {

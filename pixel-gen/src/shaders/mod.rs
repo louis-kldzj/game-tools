@@ -9,7 +9,7 @@ pub trait AnimatedMaterial2D: Material2d {
 
 // Could make this a single trait and have everything in the material.
 
-pub trait AnimatedMaterialConfig: Resource {
+pub trait AnimatedMaterialConfig: Component {
     fn start(&mut self, start: f32, target: f32);
 
     fn progress(&self) -> f32;
@@ -24,7 +24,7 @@ pub trait AnimatedMaterialConfig: Resource {
     fn speed(&self) -> f32;
 }
 
-#[derive(Resource, Default)]
+#[derive(Component, Default)]
 pub struct DefaultAnimationConfig {
     pub progress: f32,
     pub start: f32,
@@ -74,35 +74,32 @@ impl AnimatedMaterialConfig for DefaultAnimationConfig {
     }
 }
 
-pub fn animate_material<M, R>(
+pub fn animate_material<M, C>(
     time: Res<Time>,
     options: Res<Options>,
-    material: Query<&mut Handle<M>>,
+    mut material: Query<(&mut Handle<M>, &mut C)>,
     mut material_assets: ResMut<Assets<M>>,
-    mut config: ResMut<R>,
 ) where
     M: AnimatedMaterial2D,
-    R: AnimatedMaterialConfig,
+    C: AnimatedMaterialConfig,
 {
     if !options.animate {
         return;
     }
 
-    let Ok(handle) = material.get_single() else {
-        return;
-    };
+    for (handle, mut config) in material.iter_mut() {
+        let Some(material) = material_assets.get_mut(handle.id()) else {
+            return;
+        };
 
-    let Some(material) = material_assets.get_mut(handle.id()) else {
-        return;
-    };
+        if config.cycle() {
+            config.change_direction();
+        }
 
-    if config.cycle() {
-        config.change_direction();
+        material.update(
+            material
+                .get()
+                .lerp(config.target(), time.delta_seconds() * config.speed()),
+        );
     }
-
-    material.update(
-        material
-            .get()
-            .lerp(config.target(), time.delta_seconds() * config.speed()),
-    );
 }

@@ -28,7 +28,6 @@ pub fn spawn_star_stuff(
     current_nebulae: Query<Entity, With<StarStuff>>,
     mut asset_server: ResMut<Assets<Image>>,
     screen_size: Res<config::ScreenSize>,
-    mut animation_config: ResMut<StarStuffConfig>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -50,10 +49,13 @@ pub fn spawn_star_stuff(
         &screen_size,
     );
 
+    let mut animation_config = StarStuffConfig::new();
+
     animation_config.start(mat.get(), mat.get() + 1.);
 
     commands.spawn((
         StarStuff,
+        animation_config,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(Rectangle::from_size(Vec2::splat(screen_size.space.height)))
@@ -64,7 +66,7 @@ pub fn spawn_star_stuff(
     ));
 }
 
-#[derive(Resource)]
+#[derive(Component)]
 pub struct StarStuffConfig {
     default: DefaultAnimationConfig,
 }

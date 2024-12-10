@@ -1,7 +1,6 @@
-use bevy::prelude::*;
 use gooey_ui::{Element, UiText};
 
-use crate::{options::Options, ScreenSize};
+use crate::*;
 
 #[derive(Event)]
 pub struct SpawnMenuEvent;
@@ -17,9 +16,9 @@ pub fn spawn_menu(
     mut trigger: EventReader<SpawnMenuEvent>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    screen_size: Res<ScreenSize>,
+    screen_size: Res<config::ScreenSize>,
     existing_query: Query<Entity, With<Menu>>,
-    options: Res<Options>,
+    options: Res<config::Options>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -34,9 +33,9 @@ pub fn spawn_menu(
 }
 
 fn menu(
-    screen_size: &ScreenSize,
+    screen_size: &config::ScreenSize,
     asset_server: &AssetServer,
-    options: &Options,
+    options: &config::Options,
 ) -> gooey_ui::Element {
     Element::Logical(gooey_ui::Config {
         id: "ROOT",

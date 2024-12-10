@@ -1,17 +1,12 @@
 use bevy::{
-    ecs::change_detection,
-    prelude::*,
     reflect::TypePath,
     render::render_resource::{AsBindGroup, ShaderRef},
-    sprite::{Material2d, MaterialMesh2dBundle, Mesh2dHandle},
 };
-use rand::Rng;
 
-use crate::{
-    options::Options,
-    shaders::{AnimatedMaterial2D, AnimatedMaterialConfig, DefaultAnimationConfig},
-    ScreenSize,
-};
+use rand::Rng;
+use shaders::{AnimatedMaterial2D, AnimatedMaterialConfig};
+
+use crate::*;
 
 #[derive(Event)]
 pub struct SpawnNebulaeEvent;
@@ -28,10 +23,10 @@ pub fn spawn_nebulae(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<NebulaeMaterial>>,
-    options: Res<Options>,
+    options: Res<config::Options>,
     current_nebulae: Query<Entity, With<Nebulae>>,
     mut asset_server: ResMut<Assets<Image>>,
-    screen_size: Res<ScreenSize>,
+    screen_size: Res<config::ScreenSize>,
     mut animation_config: ResMut<NebulaeConfig>,
 ) {
     let Some(_) = trigger.read().next() else {
@@ -70,19 +65,19 @@ pub fn spawn_nebulae(
 
 #[derive(Resource)]
 pub struct NebulaeConfig {
-    default: DefaultAnimationConfig,
+    default: shaders::DefaultAnimationConfig,
 }
 
 impl NebulaeConfig {
     pub fn new() -> Self {
         NebulaeConfig {
-            default: DefaultAnimationConfig::default(),
+            default: shaders::DefaultAnimationConfig::default(),
         }
     }
 }
 
 // TODO: This could be a derive macro
-impl AnimatedMaterialConfig for NebulaeConfig {
+impl shaders::AnimatedMaterialConfig for NebulaeConfig {
     fn start(&mut self, value: f32) {
         self.default.start(value);
     }
@@ -136,7 +131,7 @@ pub struct NebulaeMaterial {
     color_texture: Option<Handle<Image>>,
 }
 
-impl AnimatedMaterial2D for NebulaeMaterial {
+impl shaders::AnimatedMaterial2D for NebulaeMaterial {
     fn get(&self) -> f32 {
         self.size
     }
@@ -148,10 +143,10 @@ impl AnimatedMaterial2D for NebulaeMaterial {
 
 impl NebulaeMaterial {
     fn new(
-        options: &Options,
+        options: &config::Options,
         asset_server: &mut Assets<Image>,
         x_offset: f32,
-        screen_size: &ScreenSize,
+        screen_size: &config::ScreenSize,
     ) -> Self {
         let (image, bg) = options.colorscheme.gradient_image_with_bg();
         let mut rng = rand::thread_rng();

@@ -1,11 +1,7 @@
-use bevy::{
-    prelude::*,
-    render::render_resource::{AsBindGroup, ShaderRef},
-    sprite::{Material2d, MaterialMesh2dBundle},
-};
+use bevy::render::render_resource::{AsBindGroup, ShaderRef};
 use rand::Rng;
 
-use crate::{options::Options, ScreenSize};
+use crate::*;
 
 #[derive(Event)]
 pub struct SpawnPlanetsEvent;
@@ -58,10 +54,10 @@ pub fn spawn_planets(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<PlanetsMaterial>>,
-    options: Res<Options>,
+    options: Res<config::Options>,
     current_planet: Query<Entity, With<Planets>>,
     mut images: ResMut<Assets<Image>>,
-    screen_size: Res<ScreenSize>,
+    screen_size: Res<config::ScreenSize>,
 ) {
     if trigger.is_empty() {
         return;
@@ -110,7 +106,11 @@ pub struct PlanetsMaterial {
 }
 
 impl PlanetsMaterial {
-    fn new(options: &Options, asset_server: &mut Assets<Image>, screen_size: &ScreenSize) -> Self {
+    fn new(
+        options: &config::Options,
+        asset_server: &mut Assets<Image>,
+        screen_size: &config::ScreenSize,
+    ) -> Self {
         PlanetsMaterial {
             size: 5.365,
             octaves: 3,

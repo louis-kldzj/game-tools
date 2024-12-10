@@ -1,4 +1,6 @@
 use bevy::prelude::*;
+use rand::Rng;
+use utils::screenspace::Space;
 
 use crate::{colorscheme::ColorScheme, RefreshAllEvent};
 
@@ -58,4 +60,52 @@ pub fn change_options(
     }
 
     refresh_all.send(RefreshAllEvent);
+}
+
+pub fn update_screen_size(query: Query<&Window>, mut screen_size: ResMut<ScreenSize>) {
+    let Ok(window) = query.get_single() else {
+        return;
+    };
+
+    screen_size.set(window.size());
+}
+
+#[derive(Resource, Default)]
+pub struct ScreenSize {
+    pub space: Space,
+}
+
+impl ScreenSize {
+    pub fn set(&mut self, size: Vec2) {
+        self.space.width = size.x;
+        self.space.height = size.y;
+    }
+
+    pub fn vec2(&self) -> Vec2 {
+        Vec2::new(self.space.width, self.space.height)
+    }
+
+    pub fn x_offset(&self) -> f32 {
+        -((self.vec2().x / 2.) - (self.vec2().y / 2.))
+    }
+
+    pub fn left(&self) -> f32 {
+        self.vec2().y
+    }
+
+    pub fn width(&self) -> f32 {
+        self.vec2().x - self.left()
+    }
+
+    pub fn random_postion(&self, z: f32) -> Vec3 {
+        if self.space.width == 0. && self.space.height == 0. {
+            return Vec3::ZERO;
+        }
+        let half_square = self.space.height / 2.;
+        let x_offset = self.x_offset();
+        let mut rng = rand::thread_rng();
+        let x = rng.gen_range((x_offset - half_square)..(x_offset + half_square));
+        let y = rng.gen_range(-half_square..half_square);
+        Vec3::new(x, y, z)
+    }
 }

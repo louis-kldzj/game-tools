@@ -1,6 +1,6 @@
 use bevy::{math::VectorSpace, prelude::*, sprite::Material2d};
 
-use crate::{nebulae::Nebulae, options::Options};
+use crate::{config::Options, nebulae::Nebulae};
 
 pub trait AnimatedMaterial2D: Material2d {
     fn get(&self) -> f32;

@@ -1,15 +1,12 @@
 use bevy::{
-    prelude::*,
     reflect::TypePath,
     render::render_resource::{AsBindGroup, ShaderRef},
-    sprite::{Material2d, MaterialMesh2dBundle},
 };
 use rand::Rng;
 
 use crate::{
-    options::Options,
     shaders::{AnimatedMaterial2D, AnimatedMaterialConfig, DefaultAnimationConfig},
-    ScreenSize,
+    *,
 };
 
 #[derive(Event)]
@@ -27,10 +24,10 @@ pub fn spawn_star_stuff(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StarStuffMaterial>>,
-    options: Res<Options>,
+    options: Res<config::Options>,
     current_nebulae: Query<Entity, With<StarStuff>>,
     mut asset_server: ResMut<Assets<Image>>,
-    screen_size: Res<ScreenSize>,
+    screen_size: Res<config::ScreenSize>,
     mut animation_config: ResMut<StarStuffConfig>,
 ) {
     let Some(_) = trigger.read().next() else {
@@ -147,10 +144,10 @@ impl AnimatedMaterial2D for StarStuffMaterial {
 
 impl StarStuffMaterial {
     fn new(
-        options: &Options,
+        options: &config::Options,
         asset_server: &mut Assets<Image>,
         x_offset: f32,
-        screen_size: &ScreenSize,
+        screen_size: &config::ScreenSize,
     ) -> Self {
         let mut rng = rand::thread_rng();
 

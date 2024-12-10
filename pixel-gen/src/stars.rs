@@ -1,11 +1,7 @@
-use bevy::{
-    prelude::*,
-    render::render_resource::{AsBindGroup, ShaderRef},
-    sprite::{Material2d, MaterialMesh2dBundle},
-};
+use bevy::render::render_resource::{AsBindGroup, ShaderRef};
 use rand::Rng;
 
-use crate::{options::Options, ScreenSize};
+use crate::*;
 
 #[derive(Event)]
 pub struct SpawnBigStarEvent;
@@ -21,8 +17,8 @@ pub fn spawn_star(
     mut images: ResMut<Assets<Image>>,
     query: Query<Entity, With<Star>>,
     assets: Res<AssetServer>,
-    screen_size: Res<ScreenSize>,
-    options: Res<Options>,
+    screen_size: Res<config::ScreenSize>,
+    options: Res<config::Options>,
 ) {
     if events.is_empty() {
         return;

@@ -49,7 +49,7 @@ pub fn spawn_nebulae(
         &screen_size,
     );
 
-    animation_config.start(mat.get());
+    animation_config.start(mat.get(), mat.get() + 1.);
 
     commands.spawn((
         Nebulae,
@@ -78,8 +78,8 @@ impl NebulaeConfig {
 
 // TODO: This could be a derive macro
 impl shaders::AnimatedMaterialConfig for NebulaeConfig {
-    fn start(&mut self, value: f32) {
-        self.default.start(value);
+    fn start(&mut self, start: f32, target: f32) {
+        self.default.start(start, target);
     }
 
     fn progress(&self) -> f32 {
@@ -96,6 +96,10 @@ impl shaders::AnimatedMaterialConfig for NebulaeConfig {
 
     fn change_direction(&mut self) {
         self.default.change_direction();
+    }
+
+    fn cycle(&self) -> bool {
+        self.default.cycle()
     }
 
     fn speed(&self) -> f32 {

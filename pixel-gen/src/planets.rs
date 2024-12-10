@@ -1,5 +1,6 @@
 use bevy::render::render_resource::{AsBindGroup, ShaderRef};
 use rand::Rng;
+use shaders::{AnimatedMaterial2D, AnimatedMaterialConfig, DefaultAnimationConfig};
 
 use crate::*;
 
@@ -58,6 +59,7 @@ pub fn spawn_planets(
     current_planet: Query<Entity, With<Planets>>,
     mut images: ResMut<Assets<Image>>,
     screen_size: Res<config::ScreenSize>,
+    mut animation_config: ResMut<PlanetsConfig>,
 ) {
     if trigger.is_empty() {
         return;
@@ -70,6 +72,7 @@ pub fn spawn_planets(
     if !options.planets {
         return;
     }
+
     for _ in trigger.read() {
         commands.spawn((
             Planets { scale: 1. },
@@ -103,6 +106,16 @@ pub struct PlanetsMaterial {
     color_texture: Option<Handle<Image>>,
     #[uniform(7)]
     position: Vec3,
+}
+
+impl AnimatedMaterial2D for PlanetsMaterial {
+    fn get(&self) -> f32 {
+        self.size
+    }
+
+    fn update(&mut self, new_value: f32) {
+        self.size = new_value
+    }
 }
 
 impl PlanetsMaterial {
@@ -140,5 +153,40 @@ impl Material2d for PlanetsMaterial {
         descriptor.vertex.entry_point = "main".into();
         descriptor.fragment.as_mut().unwrap().entry_point = "main".into();
         Ok(())
+    }
+}
+
+#[derive(Resource)]
+pub struct PlanetsConfig {
+    default: DefaultAnimationConfig,
+}
+
+impl AnimatedMaterialConfig for PlanetsConfig {
+    fn start(&mut self, start: f32, target: f32) {
+        self.default.start(start, target);
+    }
+
+    fn progress(&self) -> f32 {
+        self.default.progress()
+    }
+
+    fn update_progress(&mut self, new_progress: f32) {
+        self.default.update_progress(new_progress);
+    }
+
+    fn target(&self) -> f32 {
+        self.default.target()
+    }
+
+    fn change_direction(&mut self) {
+        self.default.change_direction()
+    }
+
+    fn cycle(&self) -> bool {
+        self.default.cycle()
+    }
+
+    fn speed(&self) -> f32 {
+        self.default.speed()
     }
 }

@@ -192,6 +192,19 @@ fn menu(
                     children: vec![],
                 },
             },
+            Element::Button {
+                text: ui_text_for_button(
+                    "ANIMATION:",
+                    asset_server,
+                    options.colorscheme.bg_color(),
+                    options.animate.to_string().as_str(),
+                ),
+                config: gooey_ui::Config {
+                    id: "BTN-TRANSPARENCY",
+                    style: main_options_style(),
+                    children: vec![],
+                },
+            },
         ],
     })
 }

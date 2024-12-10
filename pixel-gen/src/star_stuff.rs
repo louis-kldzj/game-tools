@@ -50,7 +50,7 @@ pub fn spawn_star_stuff(
         &screen_size,
     );
 
-    animation_config.start(mat.get());
+    animation_config.start(mat.get(), mat.get() + 1.);
 
     commands.spawn((
         StarStuff,
@@ -78,8 +78,8 @@ impl StarStuffConfig {
 }
 
 impl AnimatedMaterialConfig for StarStuffConfig {
-    fn start(&mut self, value: f32) {
-        self.default.start(value);
+    fn start(&mut self, start: f32, target: f32) {
+        self.default.start(start, target);
     }
 
     fn progress(&self) -> f32 {
@@ -95,12 +95,11 @@ impl AnimatedMaterialConfig for StarStuffConfig {
     }
 
     fn change_direction(&mut self) {
-        self.default.target = if self.default.direction {
-            self.default.start - 10.
-        } else {
-            self.default.start
-        };
-        self.default.direction = !self.default.direction;
+        self.default.change_direction()
+    }
+
+    fn cycle(&self) -> bool {
+        self.default.cycle()
     }
 
     fn speed(&self) -> f32 {

@@ -1,6 +1,6 @@
-use bevy::{math::VectorSpace, prelude::*, sprite::Material2d};
+use bevy::{prelude::*, sprite::Material2d};
 
-use crate::{config::Options, nebulae::Nebulae};
+use crate::config::Options;
 
 pub trait AnimatedMaterial2D: Material2d {
     fn get(&self) -> f32;
@@ -10,7 +10,7 @@ pub trait AnimatedMaterial2D: Material2d {
 // Could make this a single trait and have everything in the material.
 
 pub trait AnimatedMaterialConfig: Resource {
-    fn start(&mut self, value: f32);
+    fn start(&mut self, start: f32, target: f32);
 
     fn progress(&self) -> f32;
     fn update_progress(&mut self, new_progress: f32);
@@ -18,6 +18,8 @@ pub trait AnimatedMaterialConfig: Resource {
     fn target(&self) -> f32;
 
     fn change_direction(&mut self);
+
+    fn cycle(&self) -> bool;
 
     fn speed(&self) -> f32;
 }
@@ -31,8 +33,10 @@ pub struct DefaultAnimationConfig {
 }
 
 impl AnimatedMaterialConfig for DefaultAnimationConfig {
-    fn start(&mut self, value: f32) {
-        self.start = value;
+    fn start(&mut self, start: f32, target: f32) {
+        self.start = start;
+        self.progress = start;
+        self.target = target;
         self.direction = true;
         self.change_direction();
     }
@@ -46,16 +50,23 @@ impl AnimatedMaterialConfig for DefaultAnimationConfig {
     }
 
     fn target(&self) -> f32 {
-        self.target
+        if self.direction {
+            self.target
+        } else {
+            self.start
+        }
     }
 
     fn change_direction(&mut self) {
-        if self.direction {
-            self.target = self.start + 10.;
-        } else {
-            self.target = self.start
-        }
         self.direction = !self.direction;
+    }
+
+    fn cycle(&self) -> bool {
+        if self.direction {
+            self.progress >= self.target()
+        } else {
+            self.progress <= self.target()
+        }
     }
 
     fn speed(&self) -> f32 {
@@ -85,8 +96,7 @@ pub fn animate_material<M, R>(
         return;
     };
 
-    if config.progress() >= config.target() {
-        config.update_progress(0.);
+    if config.cycle() {
         config.change_direction();
     }
 

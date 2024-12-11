@@ -11,5 +11,6 @@ fn main() {
             ..default()
         }))
         .configure_default_pixel_gen()
+        .configure_demo_ui()
         .run();
 }

@@ -12,6 +12,21 @@ pub fn setup(mut writer: EventWriter<SpawnMenuEvent>) {
     writer.send(SpawnMenuEvent);
 }
 
+pub fn refresh(
+    kb_input: Res<ButtonInput<KeyCode>>,
+    mut refresh_event: EventReader<RefreshAllEvent>,
+    mut spawn_menu: EventWriter<SpawnMenuEvent>,
+) {
+    if !kb_input.just_released(KeyCode::Space) {
+        let Some(_) = refresh_event.read().next() else {
+            return;
+        };
+        refresh_event.clear();
+    }
+
+    spawn_menu.send(ui::SpawnMenuEvent);
+}
+
 pub fn spawn_menu(
     mut trigger: EventReader<SpawnMenuEvent>,
     mut commands: Commands,

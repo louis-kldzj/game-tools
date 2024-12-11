@@ -9,7 +9,6 @@ pub fn controls(
     mut spawn_star_stuff: EventWriter<star_stuff::SpawnStarStuffEvent>,
     mut spawn_planets: EventWriter<planets::SpawnPlanetsEvent>,
     mut spawn_bg: EventWriter<background::SpawnBackgroundEvent>,
-    mut spawn_menu: EventWriter<ui::SpawnMenuEvent>,
     mut spawn_big_star: EventWriter<stars::SpawnBigStarEvent>,
 ) {
     if !kb_input.just_released(KeyCode::Space) {
@@ -25,7 +24,6 @@ pub fn controls(
         spawn_planets.send(planets::SpawnPlanetsEvent);
     }
     spawn_bg.send(background::SpawnBackgroundEvent);
-    spawn_menu.send(ui::SpawnMenuEvent);
     for _ in 0..=rand::thread_rng().gen_range(10..100) {
         spawn_big_star.send(stars::SpawnBigStarEvent);
     }

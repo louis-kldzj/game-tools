@@ -35,7 +35,9 @@ impl PixelSpace for App {
     }
 
     fn configure_demo_ui(&mut self) -> &mut Self {
-        self
+        self.add_event::<ui::SpawnMenuEvent>()
+            .add_systems(Startup, ui::setup)
+            .add_systems(Update, (ui::spawn_menu, ui::refresh))
     }
 
     fn configure_pixel_gen(&mut self, options: Options) -> &mut App {
@@ -50,11 +52,10 @@ impl PixelSpace for App {
         .add_event::<planets::SpawnPlanetsEvent>()
         .add_event::<stars::SpawnBigStarEvent>()
         .add_event::<background::SpawnBackgroundEvent>()
-        .add_event::<ui::SpawnMenuEvent>()
         .add_event::<RefreshAllEvent>()
         .insert_resource(config::ScreenSize::default())
         .insert_resource(options)
-        .add_systems(Startup, (spawn_camera, background::setup, ui::setup))
+        .add_systems(Startup, (spawn_camera, background::setup))
         .add_systems(
             PostStartup,
             (nebulae::setup, star_stuff::setup, planets::setup),
@@ -71,7 +72,6 @@ impl PixelSpace for App {
                 utils::common_systems::exit_on_q,
                 background::spawn,
                 (planets::update_scale, planets::lerp_scale).chain(),
-                ui::spawn_menu,
                 stars::spawn_star,
                 shaders::animate_material::<nebulae::NebulaeMaterial, nebulae::NebulaeConfig>,
                 shaders::animate_material::<

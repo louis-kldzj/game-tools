@@ -10,6 +10,6 @@ fn main() {
             }),
             ..default()
         }))
-        .configure_pixel_gen()
+        .configure_default_pixel_gen()
         .run();
 }

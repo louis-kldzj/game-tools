@@ -14,6 +14,8 @@ pub(crate) use bevy::{
     sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle},
 };
 
+pub use config::Options;
+
 #[derive(Event)]
 struct RefreshAllEvent;
 
@@ -22,11 +24,21 @@ fn spawn_camera(mut commands: Commands) {
 }
 
 pub trait PixelSpace {
-    fn configure_pixel_gen(&mut self) -> &mut Self;
+    fn configure_default_pixel_gen(&mut self) -> &mut Self;
+    fn configure_pixel_gen(&mut self, options: Options) -> &mut Self;
+    fn configure_demo_ui(&mut self) -> &mut Self;
 }
 
 impl PixelSpace for App {
-    fn configure_pixel_gen(&mut self) -> &mut App {
+    fn configure_default_pixel_gen(&mut self) -> &mut Self {
+        self.configure_pixel_gen(config::DEFAULT_OPTIONS)
+    }
+
+    fn configure_demo_ui(&mut self) -> &mut Self {
+        self
+    }
+
+    fn configure_pixel_gen(&mut self, options: Options) -> &mut App {
         self.add_plugins((
             Material2dPlugin::<nebulae::NebulaeMaterial>::default(),
             Material2dPlugin::<star_stuff::StarStuffMaterial>::default(),
@@ -41,7 +53,7 @@ impl PixelSpace for App {
         .add_event::<ui::SpawnMenuEvent>()
         .add_event::<RefreshAllEvent>()
         .insert_resource(config::ScreenSize::default())
-        .insert_resource(config::DEFAULT_OPTIONS)
+        .insert_resource(options)
         .add_systems(Startup, (spawn_camera, background::setup, ui::setup))
         .add_systems(
             PostStartup,

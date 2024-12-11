@@ -27,7 +27,6 @@ pub fn spawn_star_stuff(
     options: Res<config::Options>,
     current_nebulae: Query<Entity, With<StarStuff>>,
     mut asset_server: ResMut<Assets<Image>>,
-    screen_size: Res<config::ScreenSize>,
 ) {
     let Some(_) = trigger.read().next() else {
         return;
@@ -45,8 +44,8 @@ pub fn spawn_star_stuff(
     let mat = StarStuffMaterial::new(
         &options,
         &mut asset_server,
-        screen_size.x_offset(),
-        &screen_size,
+        options.screen_size.x_offset(),
+        &options.screen_size,
     );
 
     let mut animation_config = StarStuffConfig::new();
@@ -58,7 +57,9 @@ pub fn spawn_star_stuff(
         animation_config,
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(Rectangle::from_size(Vec2::splat(screen_size.space.height)))
+                .add(Rectangle::from_size(Vec2::splat(
+                    options.screen_size.space.height,
+                )))
                 .into(),
             material: materials.add(mat),
             ..default()

@@ -53,7 +53,6 @@ impl PixelSpace for App {
         .add_event::<stars::SpawnBigStarEvent>()
         .add_event::<background::SpawnBackgroundEvent>()
         .add_event::<RefreshAllEvent>()
-        .insert_resource(config::ScreenSize::default())
         .insert_resource(options)
         .add_systems(Startup, (spawn_camera, background::setup))
         .add_systems(

@@ -31,7 +31,6 @@ pub fn spawn_menu(
     mut trigger: EventReader<SpawnMenuEvent>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    screen_size: Res<config::ScreenSize>,
     existing_query: Query<Entity, With<Menu>>,
     options: Res<config::Options>,
 ) {
@@ -44,14 +43,11 @@ pub fn spawn_menu(
         commands.entity(entity).despawn_recursive();
     }
 
-    menu(&screen_size, &asset_server, &options).spawn_with(&mut commands, Menu);
+    menu(&asset_server, &options).spawn_with(&mut commands, Menu);
 }
 
-fn menu(
-    screen_size: &config::ScreenSize,
-    asset_server: &AssetServer,
-    options: &config::Options,
-) -> gooey_ui::Element {
+fn menu(asset_server: &AssetServer, options: &config::Options) -> gooey_ui::Element {
+    let screen_size = options.screen_size;
     Element::Logical(gooey_ui::Config {
         id: "ROOT",
         style: Style {

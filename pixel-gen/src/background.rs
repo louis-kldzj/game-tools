@@ -12,9 +12,8 @@ pub fn spawn(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut screen_size: ResMut<config::ScreenSize>,
     window: Query<&Window>,
-    options: Res<config::Options>,
+    mut options: ResMut<config::Options>,
 ) {
     let Some(_) = reader.read().next() else {
         return;
@@ -26,7 +25,7 @@ pub fn spawn(
     };
 
     let size = window.size();
-    screen_size.set(size);
+    options.screen_size.set(size);
 
     commands.spawn(MaterialMesh2dBundle {
         mesh: meshes.add(Rectangle::new(size.x, size.y)).into(),

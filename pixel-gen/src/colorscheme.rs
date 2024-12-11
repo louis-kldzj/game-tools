@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use bevy::{color::Color, prelude::Image};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum ColorScheme {
     Borkfest,
     Nyx8,

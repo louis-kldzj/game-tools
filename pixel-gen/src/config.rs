@@ -4,7 +4,7 @@ use utils::screenspace::Space;
 
 use crate::{colorscheme::ColorScheme, RefreshAllEvent};
 
-#[derive(Resource)]
+#[derive(Resource, Clone, Copy)]
 pub struct Options {
     pub pixels: f32,
     pub colorscheme: ColorScheme,
@@ -16,6 +16,7 @@ pub struct Options {
     pub darken: bool,
     pub transparency: bool,
     pub animate: bool,
+    pub screen_size: ScreenSize,
 }
 
 pub const DEFAULT_OPTIONS: Options = Options {
@@ -29,6 +30,7 @@ pub const DEFAULT_OPTIONS: Options = Options {
     darken: false,
     transparency: false,
     animate: false,
+    screen_size: ScreenSize::new(),
 };
 
 pub fn change_options(
@@ -62,20 +64,29 @@ pub fn change_options(
     refresh_all.send(RefreshAllEvent);
 }
 
-pub fn update_screen_size(query: Query<&Window>, mut screen_size: ResMut<ScreenSize>) {
+pub fn update_screen_size(query: Query<&Window>, mut options: ResMut<Options>) {
     let Ok(window) = query.get_single() else {
         return;
     };
 
-    screen_size.set(window.size());
+    options.screen_size.set(window.size());
 }
 
-#[derive(Resource, Default)]
+#[derive(Default, Clone, Copy)]
 pub struct ScreenSize {
     pub space: Space,
 }
 
 impl ScreenSize {
+    const fn new() -> Self {
+        ScreenSize {
+            space: Space {
+                width: 0.,
+                height: 0.,
+            },
+        }
+    }
+
     pub fn set(&mut self, size: Vec2) {
         self.space.width = size.x;
         self.space.height = size.y;

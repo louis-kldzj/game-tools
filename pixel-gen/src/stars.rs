@@ -17,7 +17,6 @@ pub fn spawn_star(
     mut images: ResMut<Assets<Image>>,
     query: Query<Entity, With<Star>>,
     assets: Res<AssetServer>,
-    screen_size: Res<config::ScreenSize>,
     options: Res<config::Options>,
 ) {
     if events.is_empty() {
@@ -32,7 +31,7 @@ pub fn spawn_star(
     for _ in events.read() {
         let star = assets.load("stars-special.png");
         let color_gradiant = images.add(options.colorscheme.gradient_image_with_bg().0);
-        let position = screen_size.random_postion(1.5);
+        let position = options.screen_size.random_postion(1.5);
         let index = rng.gen_range(0..6);
 
         let mesh = MaterialMesh2dBundle {

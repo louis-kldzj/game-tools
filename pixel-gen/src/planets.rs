@@ -58,7 +58,6 @@ pub fn spawn_planets(
     options: Res<config::Options>,
     current_planet: Query<Entity, With<Planets>>,
     mut images: ResMut<Assets<Image>>,
-    screen_size: Res<config::ScreenSize>,
 ) {
     if trigger.is_empty() {
         return;
@@ -73,7 +72,7 @@ pub fn spawn_planets(
     }
 
     for _ in trigger.read() {
-        let mat = PlanetsMaterial::new(&options, &mut images, &screen_size);
+        let mat = PlanetsMaterial::new(&options, &mut images);
 
         let mut config = PlanetsConfig::new();
 
@@ -125,11 +124,7 @@ impl AnimatedMaterial2D for PlanetsMaterial {
 }
 
 impl PlanetsMaterial {
-    fn new(
-        options: &config::Options,
-        asset_server: &mut Assets<Image>,
-        screen_size: &config::ScreenSize,
-    ) -> Self {
+    fn new(options: &config::Options, asset_server: &mut Assets<Image>) -> Self {
         PlanetsMaterial {
             size: 5.365,
             octaves: 3,
@@ -137,7 +132,7 @@ impl PlanetsMaterial {
             pixels: 100.0,
             light_origin: Vec2::new(rand::random(), rand::random()),
             color_texture: Some(asset_server.add(options.colorscheme.gradient_image_with_bg().0)),
-            position: screen_size.random_postion(2.0),
+            position: options.screen_size.random_postion(2.0),
         }
     }
 }

@@ -1,4 +1,7 @@
-use bevy::render::render_resource::{AsBindGroup, ShaderRef};
+use bevy::{
+    ecs::system::SystemParam,
+    render::render_resource::{AsBindGroup, ShaderRef},
+};
 use rand::Rng;
 
 use crate::*;
@@ -9,40 +12,48 @@ pub struct SpawnBigStarEvent;
 #[derive(Component)]
 pub struct Star;
 
-pub fn spawn_star(
-    mut events: EventReader<SpawnBigStarEvent>,
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut mats: ResMut<Assets<BigStarMaterial>>,
-    mut images: ResMut<Assets<Image>>,
-    query: Query<Entity, With<Star>>,
-    assets: Res<AssetServer>,
-    options: Res<config::Options>,
-) {
-    if events.is_empty() {
+#[derive(SystemParam)]
+pub struct StarSpawner<'w, 's> {
+    events: EventReader<'w, 's, SpawnBigStarEvent>,
+    commands: Commands<'w, 's>,
+    meshes: ResMut<'w, Assets<Mesh>>,
+    mats: ResMut<'w, Assets<BigStarMaterial>>,
+    images: ResMut<'w, Assets<Image>>,
+    query: Query<'w, 's, Entity, With<Star>>,
+    assets: Res<'w, AssetServer>,
+    options: Res<'w, config::Options>,
+}
+
+pub fn spawn_star(mut ss: StarSpawner) {
+    if ss.events.is_empty() {
         return;
     }
-    for entity in query.iter() {
-        commands.entity(entity).despawn_recursive()
+    for entity in ss.query.iter() {
+        ss.commands.entity(entity).despawn_recursive()
     }
 
     let mut rng = rand::thread_rng();
 
-    for _ in events.read() {
-        let star = assets.load("stars-special.png");
-        let color_gradiant = images.add(options.colorscheme.gradient_image_with_bg().0);
-        let position = options.screen_size.random_postion(1.5);
+    for _ in ss.events.read() {
+        let star = ss.assets.load("stars-special.png");
+        let color_gradiant = ss
+            .images
+            .add(ss.options.colorscheme.gradient_image_with_bg().0);
+        let position = ss.options.screen_size.random_postion(1.5);
         let index = rng.gen_range(0..6);
 
         let mesh = MaterialMesh2dBundle {
-            mesh: meshes
+            mesh: ss
+                .meshes
                 .add(Rectangle::from_size(Vec2::splat(24. * 2.)))
                 .into(),
-            material: mats.add(BigStarMaterial::new(star, color_gradiant, position, index)),
+            material: ss
+                .mats
+                .add(BigStarMaterial::new(star, color_gradiant, position, index)),
             ..default()
         };
 
-        commands.spawn((mesh, Star));
+        ss.commands.spawn((mesh, Star));
     }
 }
 

@@ -51,8 +51,8 @@ fn menu(asset_server: &AssetServer, options: &config::Options) -> gooey_ui::Elem
     Element::Logical(gooey_ui::Config {
         id: "ROOT",
         style: Style {
-            left: Val::Px(screen_size.space.height),
-            width: Val::Px(screen_size.space.width - screen_size.space.height),
+            left: Val::Px(screen_size.screen_space.height),
+            width: Val::Px(screen_size.screen_space.width - screen_size.screen_space.height),
             flex_direction: FlexDirection::Column,
             ..default()
         },
@@ -230,16 +230,6 @@ fn main_options_style() -> Style {
     }
 }
 
-fn button_style() -> Style {
-    Style {
-        height: Val::Px(65.),
-        border: UiRect::all(Val::Px(5.)),
-        align_items: AlignItems::Center,
-        justify_content: JustifyContent::Center,
-        ..default()
-    }
-}
-
 fn ui_text(text: &str, asset_server: &AssetServer, value: &str) -> UiText {
     UiText(
         format!("{text} {value}"),
@@ -252,14 +242,6 @@ fn ui_text_for_button(text: &str, asset_server: &AssetServer, color: Color, valu
         format!("{text} {value}"),
         default_text_style_with_color(asset_server, color),
     )
-}
-
-fn default_text_style(asset_server: &AssetServer) -> TextStyle {
-    TextStyle {
-        font: asset_server.load("slkscre.ttf"),
-        font_size: 48.,
-        color: Color::BLACK,
-    }
 }
 
 fn default_text_style_with_color(asset_server: &AssetServer, color: Color) -> TextStyle {

@@ -74,30 +74,36 @@ pub fn update_screen_size(query: Query<&Window>, mut options: ResMut<Options>) {
 
 #[derive(Default, Clone, Copy)]
 pub struct ScreenSize {
-    pub space: Space,
+    pub screen_space: Space,
+    pub show_ui: bool,
 }
 
 impl ScreenSize {
     const fn new() -> Self {
         ScreenSize {
-            space: Space {
+            screen_space: Space {
                 width: 0.,
                 height: 0.,
             },
+            show_ui: true,
         }
     }
 
     pub fn set(&mut self, size: Vec2) {
-        self.space.width = size.x;
-        self.space.height = size.y;
+        self.screen_space.width = size.x;
+        self.screen_space.height = size.y;
     }
 
     pub fn vec2(&self) -> Vec2 {
-        Vec2::new(self.space.width, self.space.height)
+        Vec2::new(self.screen_space.width, self.screen_space.height)
     }
 
     pub fn x_offset(&self) -> f32 {
-        -((self.vec2().x / 2.) - (self.vec2().y / 2.))
+        if self.show_ui {
+            -((self.vec2().x / 2.) - (self.vec2().y / 2.))
+        } else {
+            0.
+        }
     }
 
     pub fn left(&self) -> f32 {
@@ -105,14 +111,18 @@ impl ScreenSize {
     }
 
     pub fn width(&self) -> f32 {
-        self.vec2().x - self.left()
+        if self.show_ui {
+            self.vec2().x - self.left()
+        } else {
+            self.screen_space.width
+        }
     }
 
     pub fn random_postion(&self, z: f32) -> Vec3 {
-        if self.space.width == 0. && self.space.height == 0. {
+        if self.screen_space.width == 0. && self.screen_space.height == 0. {
             return Vec3::ZERO;
         }
-        let half_square = self.space.height / 2.;
+        let half_square = self.screen_space.height / 2.;
         let x_offset = self.x_offset();
         let mut rng = rand::thread_rng();
         let x = rng.gen_range((x_offset - half_square)..(x_offset + half_square));

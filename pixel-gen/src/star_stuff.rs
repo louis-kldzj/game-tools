@@ -58,7 +58,7 @@ pub fn spawn_star_stuff(
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(Rectangle::from_size(Vec2::splat(
-                    options.screen_size.space.height,
+                    options.screen_size.screen_space.height,
                 )))
                 .into(),
             material: materials.add(mat),
@@ -154,7 +154,7 @@ impl StarStuffMaterial {
         let mut rng = rand::thread_rng();
 
         StarStuffMaterial {
-            size: screen_size.space.height / options.pixels,
+            size: screen_size.screen_space.height / options.pixels,
             octaves: rng.gen_range(3..5),
             seed: rng.gen_range(1.0..50.0),
             pixels: options.pixels,

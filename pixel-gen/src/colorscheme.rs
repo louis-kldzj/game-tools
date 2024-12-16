@@ -59,7 +59,3 @@ impl ColorScheme {
         )
     }
 }
-
-pub struct ColorSchemeData {
-    colors: &'static [&'static str],
-}

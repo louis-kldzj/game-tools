@@ -9,9 +9,24 @@
  \:::\   \:::\   \/____/  \:::\    \      \/____/  \/____|:::::\/:::/    /  \:::\   \:::\   \/____/  \:::\   \:::\   \/____/  \/____/ |::| /:::/    /          \:::\   \:::\   \/____/  \/_____/\:::\/:::/    /  \/____/ \:::\/:::/    /  \:::\    \      \/____/  \:::\   \:::\   \/____/
 *********************************************************************/
 
-use bevy::prelude::*;
+use serde::Deserialize;
 
-#[derive(Clone, Copy, PartialEq, PartialOrd, Default)]
+#[derive(Clone, Copy, Deserialize)]
+pub enum CommonResolution {
+    FourK16x9,
+}
+
+impl CommonResolution {
+    pub const fn space(self) -> Space {
+        let (width, height) = match self {
+            CommonResolution::FourK16x9 => (3840., 2160.),
+        };
+
+        Space { width, height }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, PartialOrd, Default, Deserialize)]
 pub struct Space {
     pub width: f32,
     pub height: f32,

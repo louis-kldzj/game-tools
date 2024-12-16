@@ -1,10 +1,14 @@
+use std::fs;
+
 use bevy::prelude::*;
 use rand::Rng;
+use serde::Deserialize;
+use toml::Value;
 use utils::screenspace::Space;
 
 use crate::{colorscheme::ColorScheme, RefreshAllEvent};
 
-#[derive(Resource, Clone, Copy)]
+#[derive(Resource, Clone, Copy, Deserialize, PartialEq)]
 pub struct Options {
     pub pixels: f32,
     pub colorscheme: ColorScheme,
@@ -14,6 +18,7 @@ pub struct Options {
     pub planets: bool,
     pub tile: bool,
     pub darken: bool,
+    //NOTE: Currenty does nothing
     pub transparency: bool,
     pub animate: bool,
     pub screen_size: ScreenSize,
@@ -72,7 +77,7 @@ pub fn update_screen_size(query: Query<&Window>, mut options: ResMut<Options>) {
     options.screen_size.set(window.size());
 }
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone, Copy, Deserialize, PartialEq)]
 pub struct ScreenSize {
     pub screen_space: Space,
     pub show_ui: bool,
@@ -118,6 +123,18 @@ impl ScreenSize {
         }
     }
 
+    pub fn height(&self) -> f32 {
+        self.screen_space.height
+    }
+
+    pub fn aspect(&self) -> Vec2 {
+        if self.width() > self.height() {
+            Vec2::new(self.width() / self.height(), 1.)
+        } else {
+            Vec2::new(1., self.height() / self.width())
+        }
+    }
+
     pub fn random_postion(&self, z: f32) -> Vec3 {
         if self.screen_space.width == 0. && self.screen_space.height == 0. {
             return Vec3::ZERO;
@@ -129,4 +146,18 @@ impl ScreenSize {
         let y = rng.gen_range(-half_square..half_square);
         Vec3::new(x, y, z)
     }
+}
+
+fn refresh_options_from_file(mut old_options: ResMut<Options>) {
+    let Ok(data) = fs::read_to_string("config.toml") else {
+        warn!("could not read config file");
+        return;
+    };
+
+    let Ok(options): Result<Options, _> = toml::from_str(&data) else {
+        warn!("could not parse config file");
+        return;
+    };
+
+    old_options.set_if_neq(options);
 }

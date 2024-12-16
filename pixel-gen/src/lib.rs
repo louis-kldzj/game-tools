@@ -14,7 +14,8 @@ pub(crate) use bevy::{
     sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle},
 };
 
-pub use config::Options;
+pub use colorscheme::ColorScheme;
+pub use config::{Options, ScreenSize};
 
 #[derive(Event)]
 struct RefreshAllEvent;

@@ -56,8 +56,9 @@ pub fn spawn_nebulae(
         animation_config,
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(Rectangle::from_size(Vec2::splat(
-                    options.screen_size.screen_space.height,
+                .add(Rectangle::from_size(Vec2::new(
+                    options.screen_size.width(),
+                    options.screen_size.height(),
                 )))
                 .into(),
             material: materials.add(mat),
@@ -159,12 +160,12 @@ impl NebulaeMaterial {
         let mut rng = rand::thread_rng();
 
         NebulaeMaterial {
-            size: (screen_size.screen_space.height / options.pixels),
+            size: (screen_size.width() / options.pixels),
             octaves: rng.gen_range(3..5),
             seed: rng.gen_range(1.0..50.0),
             pixels: options.pixels,
             background_color: bg.to_srgba().to_vec4(),
-            uv_correct: Vec2::new(1., 1.),
+            uv_correct: options.screen_size.aspect(),
             color_texture: Some(asset_server.add(image)),
             should_tile: options.tile as i32,
             time: 0.,

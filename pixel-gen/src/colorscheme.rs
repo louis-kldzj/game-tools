@@ -1,8 +1,9 @@
 use std::fmt::Display;
 
 use bevy::{color::Color, prelude::Image};
+use serde::Deserialize;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
 pub enum ColorScheme {
     Borkfest,
     Nyx8,

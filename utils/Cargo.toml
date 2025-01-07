@@ -4,5 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.14.2", default-features = false, features = [] }
-serde = "1.0.216"
+bevy = { version = "0.15.1", default-features = false, features = [
+  "bevy_core_pipeline",
+] }
+serde = "1.0.217"

@@ -3,17 +3,16 @@ use bevy::prelude::*;
 #[derive(Component)]
 struct ElementId(&'static str);
 
-pub struct UiText(pub String, pub TextStyle);
+pub struct UiText(pub String);
 
 impl UiText {
     pub fn to_text(self) -> Text {
-        Text::from_section(self.0, self.1)
+        Text::new(self.0)
     }
 }
 
 pub struct Config {
     pub id: &'static str,
-    pub style: Style,
     pub children: Vec<Element>,
 }
 
@@ -29,38 +28,25 @@ impl Element {
         C: Component,
     {
         commands
-            .spawn((NodeBundle::default(), component))
+            .spawn((Node::default(), component))
             .with_children(|builder| self.spawn_as_child(builder));
     }
 
     pub fn spawn(self, commands: &mut Commands) {
         commands
-            .spawn(NodeBundle::default())
+            .spawn(Node::default())
             .with_children(|builder| self.spawn_as_child(builder));
     }
 
     pub fn spawn_as_child(self, builder: &mut ChildBuilder) {
         let (mut commands, children) = match self {
             Element::Logical(config) => (
-                builder.spawn((
-                    NodeBundle {
-                        style: config.style,
-                        ..default()
-                    },
-                    ElementId(config.id),
-                )),
+                builder.spawn((Node::default(), ElementId(config.id))),
                 config.children,
             ),
 
             Element::Text { config, text } => (
-                builder.spawn((
-                    TextBundle {
-                        style: config.style,
-                        text: text.to_text(),
-                        ..default()
-                    },
-                    ElementId(config.id),
-                )),
+                builder.spawn((Text::new(text.0), ElementId(config.id))),
                 config.children,
             ),
 
@@ -69,22 +55,11 @@ impl Element {
                 children.push(Element::Text {
                     config: Config {
                         id: config.id,
-                        style: Style::default(),
                         children: vec![],
                     },
                     text,
                 });
-                (
-                    builder.spawn((
-                        ButtonBundle {
-                            style: config.style,
-                            background_color: utils::Easle::Parchment.as_color().into(),
-                            ..default()
-                        },
-                        ElementId(config.id),
-                    )),
-                    children,
-                )
+                (builder.spawn((Button, ElementId(config.id))), children)
             }
         };
         for child in children {

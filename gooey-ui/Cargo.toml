@@ -5,5 +5,5 @@ edition = "2021"
 description = "pronounced goo-e-u-e"
 
 [dependencies]
-bevy = { version = "0.14.2", default-features = false, features = [] }
+bevy = { version = "0.15.1", default-features = false, features = ["bevy_ui"] }
 utils = { path = "../utils/" }

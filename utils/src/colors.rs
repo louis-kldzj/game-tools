@@ -10,12 +10,23 @@ use bevy::{
 
 pub enum Easle {
     Parchment,
+    Purple,    // #904DFA
+    SoftGreen, // #36D962
+    Blue,      // #7295E8
+    Green,     // #14DB71
+    Orange,    // #FC7E32
 }
 
 impl Easle {
     pub fn as_color(self) -> Color {
+        use Easle::*;
         match self {
             Easle::Parchment => hex_to_color("#c3a38a"),
+            Purple => hex_to_color("#904DFA"),
+            SoftGreen => hex_to_color("#36D962"),
+            Blue => hex_to_color("#7295E8"),
+            Green => hex_to_color("#14DB71"),
+            Orange => hex_to_color("#FC7E32"),
         }
     }
 }

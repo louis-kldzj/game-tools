@@ -208,6 +208,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy-utils"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "serde",
+]
+
+[[package]]
 name = "bevy_a11y"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1629,7 +1637,6 @@ name = "gooey-ui"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "utils",
 ]
 
 [[package]]
@@ -2879,14 +2886,6 @@ name = "unicode-xid"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
-
-[[package]]
-name = "utils"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "serde",
-]
 
 [[package]]
 name = "uuid"
